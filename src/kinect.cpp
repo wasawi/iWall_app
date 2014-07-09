@@ -357,7 +357,7 @@ void kinect::drawContourAnalysis(float x, float y, float w, float h){
 			}
 			ofEndShape(true);
 		}else if(cfDetail == 3){
-			ofSetColor(0x220000);
+			ofSetColor(ofColor::red);
 			ofNoFill();
 			ofBeginShape();
 			for(unsigned int z = 0; z < contourHull[i].size(); z++){
@@ -406,7 +406,7 @@ void kinect::drawContourAnalysis(float x, float y, float w, float h){
 		}
 		//------------------- fit geometry lines on countour
 		if(bShowLines){
-			ofSetColor(0x8aff00);
+			ofSetColor(ofColor::green);
 			ofNoFill();
 			for(unsigned int j = 0; j < geomLines.size(); j++){
 				ofLine(geomLines[j].x,geomLines[j].y,geomLines[j].z,geomLines[j].w);
@@ -416,7 +416,7 @@ void kinect::drawContourAnalysis(float x, float y, float w, float h){
 		}
 	}
 	
-	ofSetColor(0xffff00);
+	ofSetColor(ofColor::yellow);
 	ofCircle(left.x,left.y,3);
 	ofCircle(right.x,right.y,3);
 
@@ -595,6 +595,11 @@ void kinect::keyPressed  (int key){
 		
 		case 'd':
 			cout << "degree = " << degree << endl;
+			break;
+
+		case 's':
+			string message = "gotoBlender";
+			ofNotifyEvent(trigger, message, this);
 			break;
 
 	}

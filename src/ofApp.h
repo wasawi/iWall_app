@@ -3,7 +3,7 @@
 #include "ofMain.h"
 
 #include "kinect.h"
-#include "ofxVLCRemote.h"
+#include "appSwitch.h"
 #include "ofxTimer.h"
 
 class ofApp : public ofBaseApp {
@@ -15,22 +15,10 @@ public:
 	void draw();
 	void exit();
 	void keyPressed(int key);
-
-	void openBlender();
-	void focusBlender();
-	void stopBlender();
 	
-	void initVLC();
-	void openVLC();
-	void focusVLC();
-	void stopVLC();
-
-	
-	ofxVLCRemote	vlc;
 	ofxTimer		timer;
-	kinect			kin;
-	bool			isBlenderOnFocus;
+	kinect			knect;
+	appSwitch		apps;
 	
-	bool			isOnInit;
-	string			BlenderPID;
+	void switcher(string &e);
 };

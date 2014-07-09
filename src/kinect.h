@@ -115,8 +115,13 @@ public:
 	ofVec2f						left, right, center, angle;
 	float						degree, incrementDegree, distance, smoothDegree, smoothFactor, distanceLimit, speed;
 	float						rotX, rotY, rotZ;
+
+	//Events
+	ofEvent <string> trigger;
+
 private:
 	ofxOscSender				sender;											// sending OSC data object
 	ofxOscReceiver				receiver;
 
+	
 };
