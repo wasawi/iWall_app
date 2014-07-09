@@ -17,12 +17,20 @@ public:
 	void keyPressed(int key);
 
 	void openBlender();
-	void openVLC();
 	void focusBlender();
+	void stopBlender();
+	
+	void initVLC();
+	void openVLC();
 	void focusVLC();
+	void stopVLC();
+
 	
 	ofxVLCRemote	vlc;
 	ofxTimer		timer;
 	kinect			kin;
-	bool isBlenderOnFocus;
+	bool			isBlenderOnFocus;
+	
+	bool			isOnInit;
+	string			BlenderPID;
 };

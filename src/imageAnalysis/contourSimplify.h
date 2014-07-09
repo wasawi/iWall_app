@@ -2,7 +2,6 @@
 
 
 #include "ofMain.h"
-//#include "ofxVectorMath.h"
 #include "ofxOpenCv.h"
 
 #include "polylineSimplify.h"

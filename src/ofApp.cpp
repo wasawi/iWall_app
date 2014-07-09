@@ -3,14 +3,16 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
 	ofSetLogLevel(OF_LOG_VERBOSE);
-	isBlenderOnFocus=false;
-
+	isBlenderOnFocus=true;
+	isOnInit = true;
+	
 	openVLC();
-	openBlender();
 	vlc.setup("/Users/ntnu/vlc.sock");
-
+	
 	timer.setup(20000, false);
 	timer.startTimer();
+	
+	openBlender();
 }
 
 //--------------------------------------------------------------
@@ -18,20 +20,21 @@ void ofApp::update(){
 	ofBackground(100,100,100);
 	
 //	kin.update();
-
-	if (timer.isTimerFinished()){
 	
-		if (isBlenderOnFocus){
+	if (timer.isTimerFinished()){
+		if (isOnInit){
+			cout << "****** init VLC" << endl;
+			initVLC();
+			isOnInit=false;
+		}
 		
-			vlc.run("loop");
-			vlc.run("play");
-			
+		if (isBlenderOnFocus){
+			stopBlender();
 			focusVLC();
 			isBlenderOnFocus= false;
 			
 		}else{
-			vlc.run("stop");
-			
+			stopVLC();
 			focusBlender();
 			isBlenderOnFocus= true;
 		}
@@ -49,46 +52,68 @@ void ofApp::draw(){
 
 //--------------------------------------------------------------
 void ofApp::openBlender(){
-	string iWallApp="/Users/ntnu/Desktop/iWall/soft/Blender/blender.app/Contents/MacOS/blender /Users/ntnu/Desktop/iWall/BlenderFiles/Hallway_01.blend -noaudio -W";
+//	string iWallApp="/Users/ntnu/Desktop/iWall/soft/Blender/blender.app/Contents/MacOS/blender /Users/ntnu/Desktop/iWall/BlenderFiles/Hallway_01.blend -noaudio -W";
+	string iWallApp="open /Users/ntnu/Desktop/iWall/BlenderFiles/Hallway_01.app &";
+	ofSystem(iWallApp);
+}
+//--------------------------------------------------------------
+void ofApp::focusBlender(){
+	cout << "****** resume blender" << endl;
+	cout << ofSystem("ps aux | grep blenderplayer | awk {'print $2'} | xargs KILL -CONT &");
+	
+	string iWallApp="open -a Hallway_01 &";
+//	string iWallApp="open -a blender &";
 //	string iWallApp="open /Users/ntnu/Desktop/iWall/BlenderFiles/Hallway_01.app &";
 	ofSystem(iWallApp);
 }
+//--------------------------------------------------------------
+void ofApp::stopBlender(){
+	cout << "****** stop blender" << endl;
+	cout << ofSystem("ps aux | grep blenderplayer | awk {'print $2'} | xargs KILL -STOP &");
+}
+
+//--------------------------------------------------------------
+void ofApp::initVLC(){
+	string dataPath="../../../data/";
+	vlc.run("add "+dataPath+"bball.mov");
+	
+	vlc.run("loop");
+	vlc.run("play");
+	vlc.run("fullscreen");
+	vlc.run("pause");
+}
+
 //--------------------------------------------------------------
 void ofApp::openVLC(){
 	string vlcPath="/Applications/VLC.app/Contents/MacOS/VLC --fullscreen --noaudio &";
 	ofSystem(vlcPath);
 }
-
-//--------------------------------------------------------------
-void ofApp::focusBlender(){
-	string iWallApp="open -a blender &";
-//	string iWallApp="open /Users/ntnu/Desktop/iWall/BlenderFiles/Hallway_01.app &";
-	ofSystem(iWallApp);
-}
 //--------------------------------------------------------------
 void ofApp::focusVLC(){
+	vlc.run("pause");
+	
 	string vlcPath="open -a VLC &";
 	ofSystem(vlcPath);
+}
+//--------------------------------------------------------------
+void ofApp::stopVLC(){
+	vlc.run("pause");
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed  (int key){
 	
+	kin.keyPressed(key);
+	
 	switch (key){
 			
 		case 'a':{
-			string dataPath="../../../data/";
-			vlc.run("add "+dataPath+"bball.mov");
-			vlc.run("loop");
 		}break;
 			
 		case 's':{
-			vlc.run("stop");
 		}break;
 
 		case 'i':{
-			string iWallApp="open /Users/ntnu/Desktop/iWall/BlenderFiles/Hallway_01.app &";
-			ofSystem(iWallApp);
 		}break;
 
 	}
