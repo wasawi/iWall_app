@@ -5,7 +5,7 @@
 #include "ofxVLCRemote.h"
 #include "ofxTimer.h"
 
-class appSwitch : public ofBaseApp {
+class appSwitch {
 
 public:
 	
@@ -24,6 +24,8 @@ public:
 	
 	void switchToBlender();
 	void switchToVLC();
+	
+	void switchApp();
 	
 	ofxVLCRemote	vlc;
 	ofxTimer		timer;

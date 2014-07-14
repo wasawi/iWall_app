@@ -20,5 +20,6 @@ public:
 	kinect			knect;
 	appSwitch		apps;
 	
-	void switcher(string &e);
+	void switcher(float &e);
+	void manualSwitcher(string &e);
 };

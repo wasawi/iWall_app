@@ -10,24 +10,41 @@ void appSwitch::setup(){
 	openVLC();
 	vlc.setup("/Users/ntnu/vlc.sock");
 	
-	timer.setup(10000, false);
-	timer.startTimer();
+//	timer.setup(20000, false);
+//	timer.startTimer();
 	
 	openBlender();
 	ofSetLogLevel(OF_LOG_NOTICE);
 }
 
 //--------------------------------------------------------------
-void appSwitch::switchToBlender(){
-	if (!isBlenderOnFocus){
-	stopVLC();
-	focusBlender();
-	isBlenderOnFocus= true;
+void appSwitch::switchApp(){
+	if (isBlenderOnFocus){
+		switchToVLC();
+	}else{
+		switchToBlender();
 	}
 }
+
+//--------------------------------------------------------------
+void appSwitch::switchToBlender(){
+	if (!isBlenderOnFocus){
+		cout << "****** focus Blender" << endl;
+		stopVLC();
+		focusBlender();
+		isBlenderOnFocus= true;
+	}
+}
+
 //--------------------------------------------------------------
 void appSwitch::switchToVLC(){
 	if (isBlenderOnFocus){
+		if (isOnInit){
+			cout << "****** init VLC" << endl;
+			isOnInit=false;
+			initVLC();
+		}
+		cout << "****** focus VLC" << endl;
 		stopBlender();
 		focusVLC();
 		isBlenderOnFocus= false;
@@ -37,11 +54,12 @@ void appSwitch::switchToVLC(){
 //--------------------------------------------------------------
 void appSwitch::update(){
 	if (timer.isTimerFinished()){
-		if (isOnInit){
-			cout << "****** init VLC" << endl;
-			isOnInit=false;
-			initVLC();
-		}
+		
+		switchApp();
+		
+		// for testing keep switching
+		timer.setup(10000, false);
+		timer.startTimer();
 	}
 }
 
@@ -74,7 +92,6 @@ void appSwitch::initVLC(){
 	
 	vlc.run("loop");
 	vlc.run("play");
-	vlc.run("fullscreen");
 	vlc.run("pause");
 }
 
@@ -86,6 +103,7 @@ void appSwitch::openVLC(){
 //--------------------------------------------------------------
 void appSwitch::focusVLC(){
 	vlc.run("pause");
+	vlc.run("fullscreen");
 	
 	string vlcPath="open -a VLC &";
 	ofSystem(vlcPath);

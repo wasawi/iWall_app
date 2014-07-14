@@ -2,11 +2,12 @@
 
 #include "ofMain.h"
 
+
 // COUNTOUR FINDER
 #define		MAX_NUM_CONTOURS_TO_FIND	1
 
 // official addons
-////#include "ofxVectorMath.h"			// vectorial math structures library
+#include "ofxGui.h"
 #include "ofxOpenCv.h"				// computer vision library
 #include "ofxOsc.h"					// Open Sound Control communication library
 #include "ofxXmlSettings.h"			// read/write on/to xml file library
@@ -16,6 +17,9 @@
 #include "ofContourAnalysis.h"		// contour geometry analysis [from Chris Sugrue]
 #include "contourSimplify.h"		// contour simplify [from Theodore Watson]
 //#include "ofxVideoGrabberProsilica.h"//Prosilica frame grabber
+
+// my addons
+#include "ofxStableGate.h"
 
 #define _USE_LIVE_VIDEO		// uncomment this to use a live camera
 // otherwise, we'll use a movie file
@@ -54,39 +58,30 @@ public:
 #endif
 	
 	int w, h, W, H, WBig, HBig,  border;
-	bool						bLearnBakground;
-	ofVec3f					*warpMult;
-	ofVec3f					*destPoints;
-	ofxCvGrayscaleImage		grayImage;
-	int							threshold;
+//	bool						bLearnBakground;
+//	int							threshold;
 	
 	// kinect
-	ofxCvColorImage colorImg;
-	ofxCvGrayscaleImage grayThreshNear; // the near thresholded image
-	ofxCvGrayscaleImage grayThreshFar; // the far thresholded image
-	int nearThreshold;
-	int farThreshold;
-
-	// old cam
-/*	ofxCvGrayscaleImage		colorImage;
-	ofxCvColorImage			colorImgWarped;
-	ofxCvGrayscaleImage		colorImageSmall;
-	ofxCvGrayscaleImage		grayBg;
-	ofxCvGrayscaleImage		grayDiff;
-*/
+	ofVec3f						*warpMult;
+	ofVec3f						*destPoints;
+	ofxCvGrayscaleImage			grayImage;
+	ofxCvColorImage				colorImg;
+	ofxCvGrayscaleImage			grayThreshNear; // the near thresholded image
+	ofxCvGrayscaleImage			grayThreshFar; // the far thresholded image
 	
 	// contour finder
-	ofxCvContourFinder		contourFinder;
-	contourSimplify			contourS;
-	vector<ofVec2f>			*contourReg;
-	vector<ofVec2f>			*contourSmooth;
-	vector<ofVec2f>			*contourSimple;
-	vector<ofVec2f>			*contourHull;
+	ofxCvContourFinder			contourFinder;
+	contourSimplify				contourS;
+	vector<ofVec2f>				*contourReg;
+	vector<ofVec2f>				*contourSmooth;
+	vector<ofVec2f>				*contourSimple;
+	vector<ofVec2f>				*contourHull;
 	CvBox2D32f					*box;
 	float						*blobAngle;
 	float						smoothPct;
 	float						tolerance;
 	int							runningBlobs;
+	float						runningBlobsF;
 	
 	vector<ofVec4f>				geomLines;										// geometry lines find into countour
 	
@@ -113,15 +108,33 @@ public:
 	
 	// Flickflock values
 	ofVec2f						left, right, center, angle;
-	float						degree, incrementDegree, distance, smoothDegree, smoothFactor, distanceLimit, speed;
+
 	float						rotX, rotY, rotZ;
 
 	//Events
-	ofEvent <string> trigger;
+	ofEvent <string>			trigger;
 
+	//GUI
+	ofParameter<bool>		active;
+	ofParameter<float>		nearThreshold,
+							farThreshold,
+							degree,
+							incrementDegree,
+							distance,
+							smoothDegree,
+							smoothFactor,
+							distanceLimit,
+							speed,
+							gateOpenDelay,
+							gateCloseDelay;
+	ofxPanel gui;
+	
+	// switch gate
+	ofxStableGate			gate;
+	
 private:
-	ofxOscSender				sender;											// sending OSC data object
-	ofxOscReceiver				receiver;
+	ofxOscSender			sender;											// sending OSC data object
+	ofxOscReceiver			receiver;
 
 	
 };

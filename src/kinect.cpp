@@ -5,22 +5,17 @@ void kinect::setup(){
 	ofSetLogLevel(OF_LOG_VERBOSE);
 	
 	//////////////////////////////////////////////
+	// Camera settings
 //	videoCam.setVerbose(true);
 //	videoCam.setDeviceID(6);
 //	videoCam.initGrabber(640,480,true);
 	
-	ofSetLogLevel(OF_LOG_VERBOSE);
-	
 	// enable depth->video image calibration
 	videoCam.setRegistration(true);
-    
 	videoCam.init();
-	//videoCam.init(true); // shows infrared instead of RGB video image
-	//videoCam.init(false, false); // disable video image (faster fps)
-	
+//	videoCam.init(true); // shows infrared instead of RGB video image
+	videoCam.init(false, false); // disable video image (faster fps)
 	videoCam.open();		// opens first available videoCam
-	//videoCam.open(1);	// open a videoCam by id, starting with 0 (sorted by serial # lexicographically))
-	//videoCam.open("A00362A08602047A");	// open a videoCam using it's unique serial #
 	
 	// print the intrinsic IR sensor values
 	if(videoCam.isConnected()) {
@@ -32,6 +27,7 @@ void kinect::setup(){
 
 	
 	//////////////////////////////////////////////
+	// interface
 	w = 160;
 	h = 120;
 	W = 320;
@@ -39,34 +35,31 @@ void kinect::setup(){
 	WBig = 640;
 	HBig = 480;
 	border= 50;
-	
-/*
-	ofSetFrameRate(30);
-	colorImage.allocate	(WBig,HBig);
-	colorImageSmall.allocate(W,H);
-	grayImage.allocate	(W,H);
-	grayBg.allocate		(W,H);
-	grayDiff.allocate	(W,H);
-*/
-	
+		
 	//////////////////////////////////////////////
 	//	kinect
 	colorImg.allocate(videoCam.width, videoCam.height);
 	grayImage.allocate(videoCam.width, videoCam.height);
 	grayThreshNear.allocate(videoCam.width, videoCam.height);
 	grayThreshFar.allocate(videoCam.width, videoCam.height);
-	nearThreshold = 250;
-	farThreshold = 200;
 
 	
-	bLearnBakground				= true;
-	threshold					= 13;
-	smoothDegree				= 0.0;
-	smoothFactor				= 0.90;
-	distanceLimit				= 0.5;
-	speed						= 0.01;
-	degree						= 0;
+	//////////////////////////////////////////////
+	//	Parameters
+	gui.setup("panel"); // most of the time you don't need a name but don't forget to call setup
+	gui.setPosition(border, 380);
+	gui.setSize(W+w, 20);
+	gui.add(nearThreshold.set( "nearThreshold", 250, 0, 255 ));
+	gui.add(farThreshold.set( "farThreshold",	200, 0, 255 ));
+	gui.add(smoothFactor.set( "smoothFactor",	0.9, 0, 1 ));
+	gui.add(distanceLimit.set( "distanceLimit", 0.5, 0, 1 ));
+	gui.add(speed.set( "speed",					0.01, 0, 1 ));
+	gui.add(gateOpenDelay.set( "gateOpenDelay",	2000, 0, 10000));
+	gui.add(gateCloseDelay.set( "gateCloseDelay",2000, 0, 10000));
+	gui.loadFromFile("settings.xml");
 	
+	degree		= 0;
+	smoothDegree= 0.0;
 	rotX		= 0;
 	rotY		= 0;
 	rotZ		= 0;
@@ -86,10 +79,10 @@ void kinect::setup(){
 	destPoints[3] = ofVec2f(0.0f, H);
 	
 	//////////////////////////////////////////////
+	// OSC
 	getIPfromXML();
 	sender.setup(host_number.c_str(),atoi(host_port.c_str()));
 	receiver.setup( PORT );
-	//////////////////////////////////////////////
 	sendingSocketReady			= true;
 	sendOsc_CF					= true;
 	
@@ -105,6 +98,7 @@ void kinect::setup(){
 	_osc_blobInfo = new CvBox2D32f[MAX_NUM_CONTOURS_TO_FIND];
 	smoothPct = 0.13f;
 	tolerance = 20.0f;
+	runningBlobsF=0;
 	
 	cfDetail					= 1;// contour detection detail selector
 	
@@ -113,16 +107,22 @@ void kinect::setup(){
 	bShowEllipse				= false;
 	bShowAngle					= false;
 	bShowLines					= false;
-	bDraw						= true;
+	bDraw						= false;
+	
+	//////////////////////////////////////////////
+	// switch gate
+	gate.setup(runningBlobsF);
+	gate.setPosition(border, 550);
+	gate.useDelay(gateOpenDelay, gateCloseDelay);
+	gate.setSize(W+w, 60);
+
 }
 
 //--------------------------------------------------------------
 void kinect::update(){
-	ofBackground(100,100,100);
-	
 	//////////////////////////////////////////////
 	// receive OSC data
-	receiveOscData();
+//	receiveOscData();
 
 	//////////////////////////////////////////////
 	// receive video
@@ -151,30 +151,8 @@ void kinect::update(){
 		// find contours which are between the size of 20 pixels and 1/3 the w*h pixels.
 		// also, find holes is set to true so we will get interior contours as well....
 		runningBlobs = contourFinder.findContours(grayImage, 10, (videoCam.width*videoCam.height)/2, MAX_NUM_CONTOURS_TO_FIND, false);
+		runningBlobsF = runningBlobs;
 
-/*
-		//////////////////////////////////////////////
-		// do openCV
-		colorImage.setFromPixels(videoCam.getPixels(), WBig, HBig);
-		//		grayImageSmall.setFromPixels(videoCam.getPixels(), 320,240);
-		colorImageSmall.warpIntoMe(colorImage, warpMult, destPoints);
-		//colorImageSmall.scaleIntoMe(colorImage);
-		grayImage = colorImageSmall;
-		
-		if (bLearnBakground == true){
-			grayBg = grayImage;		// the = sign copys the pixels from grayImage into grayBg (operator overloading)
-			bLearnBakground = false;
-		}
-		
-		// take the abs value of the difference between background and incoming and then threshold:
-		grayDiff.absDiff(grayBg, grayImage);
-		grayDiff.blur(5);
-		grayDiff.threshold(threshold);
-		
-		//////////////////////////////////////////////
-		// find contours
-		runningBlobs = contourFinder.findContours(grayDiff, 100, 9999999, MAX_NUM_CONTOURS_TO_FIND, false, false);
-*/
 		if(runningBlobs > 0){
 			computeContourAnalysis();
 		}else {
@@ -199,17 +177,21 @@ void kinect::update(){
 		}
 	}
 	
+	//////////////////////////////////////////////
+	// switch gate
+	gate.update();
+
 }
 
 //--------------------------------------------------------------
 void kinect::draw(){
-	
+	ofBackground(80);
+
 	if (bDraw) {
-		
 		//////////////////////////////////////////////
 		// Kinect
-		// draw from the live videoCam
-	//	videoCam.draw(420, 10, 400, 300);
+		
+	//	videoCam.draw(420, 10, 400, 300);		// draw from the live videoCam
 		videoCam.drawDepth	(border+W+1, border, w, h);
 		grayImage.draw		(border+W+1, border+h+1, w, h);
 		contourFinder.draw	(border+W+1, border+h+1, w, h);
@@ -219,17 +201,23 @@ void kinect::draw(){
 			drawContourAnalysis( border, border, W, H);
 		}
 		
-		// draw instructions
-		ofSetColor(255, 255, 255);
-		stringstream reportStream;
-		reportStream << "press h to hide/show image previews" << endl
-		<< "set near threshold " << nearThreshold << " (press: + -)" << endl
-		<< "set far threshold " << farThreshold << " (press: < >) num blobs found " << contourFinder.nBlobs << endl
-		<< ", fps: " << ofGetFrameRate() << endl
-		<< "press c to close the connection and o to open it again, connection is: " << videoCam.isConnected() << endl;
-		ofDrawBitmapString(reportStream.str(), border, border+H+20);
+		// GUI
+		gui.draw();
 
+		// switch gate
+		gate.draw();
 	}
+	
+	// draw instructions
+	ofSetColor(255, 255, 255);
+	stringstream reportStream;
+	reportStream << "press h to hide/show image previews" << endl
+	<< "press k to stop/start Kinect, current status: " << videoCam.isConnected() << endl
+	<< "num blobs found " << contourFinder.nBlobs << endl
+	<< "press ESC to close" << endl
+	<< "fps: " << ofGetFrameRate() << endl;
+	ofDrawBitmapString(reportStream.str(), border, border+H+20);
+
 }
 
 //--------------------------------------------------------------
@@ -280,7 +268,6 @@ void kinect::computeContourAnalysis(){
 		left.x=9999.0,right.x=0.0;//,yMin.y=9999.0,yMax.y=0.0;
 		for( int k=0; k<length_of_contour; k++ ){
 			ofVec4f tmpPos = contourFinder.blobs[0].pts[k];
-			
             if( tmpPos.x < left.x){
                 left.x = tmpPos.x;
                 left.y = tmpPos.y;
@@ -536,6 +523,8 @@ void kinect::receiveOscData(){
 //--------------------------------------------------------------
 void kinect::keyPressed  (int key){
 	
+	string message;
+	
 	switch (key){
 
 		case 'h':
@@ -570,7 +559,7 @@ void kinect::keyPressed  (int key){
 			break;
 			
 		case ' ':
-			bLearnBakground = true;
+//			bLearnBakground = true;
 			break;
 		
 		case 'i':
@@ -597,8 +586,13 @@ void kinect::keyPressed  (int key){
 			cout << "degree = " << degree << endl;
 			break;
 
-		case 's':
-			string message = "gotoBlender";
+		case 'b':
+			message = "gotoBlender";
+			ofNotifyEvent(trigger, message, this);
+			break;
+			
+		case 'v':
+			message = "gotoVLC";
 			ofNotifyEvent(trigger, message, this);
 			break;
 
