@@ -48,17 +48,19 @@ void kinect::setup(){
 	gui.setup("panel"); // most of the time you don't need a name but don't forget to call setup
 	gui.setPosition(border, 380);
 	gui.setSize(W+w, 20);
-	gui.add(nearThreshold.set( "nearThreshold", 250, 0, 255 ));
-	gui.add(farThreshold.set( "farThreshold",	200, 0, 255 ));
-	gui.add(smoothFactor.set( "smoothFactor",	0.9, 0, 1 ));
-	gui.add(distanceLimit.set( "distanceLimit", 0.5, 0, 1 ));
-	gui.add(speed.set( "speed",					0.01, 0, 1 ));
-	gui.add(gateOpenDelay.set( "gateOpenDelay",	2000, 0, 10000));
-	gui.add(gateCloseDelay.set( "gateCloseDelay",2000, 0, 10000));
+	gui.add(nearThreshold.set(	"nearThreshold",	250, 0, 255 ));
+	gui.add(farThreshold.set(	"farThreshold",		200, 0, 255 ));
+	gui.add(smoothFactor.set(	"smoothFactor",		0.9, 0, 1 ));
+	gui.add(fadeFactor.set(		"fadeFactor",		0.98, 0.8, 1 ));
+	gui.add(handsDistThresh.set("handsDistThresh",	0.5,  0, 1 ));
+	gui.add(speed.set(			"speed",			0.01, 0, 1 ));
+	gui.add(gateOpenDelay.set(	"gateOpenDelay",	2000, 0, 10000));
+	gui.add(gateCloseDelay.set( "gateCloseDelay",	2000, 0, 10000));
 	gui.loadFromFile("settings.xml");
 	
-	degree		= 0;
+	rotZf		= 0;
 	smoothDegree= 0.0;
+	rotYf		= 0;
 	rotX		= 0;
 	rotY		= 0;
 	rotZ		= 0;
@@ -79,11 +81,7 @@ void kinect::setup(){
 	
 	//////////////////////////////////////////////
 	// OSC
-	getIPfromXML();
-	sender.setup(host_number.c_str(),atoi(host_port.c_str()));
-	receiver.setup( PORT );
-	sendingSocketReady			= true;
-	sendOsc_CF					= true;
+	setupOSC();
 	
 	//////////////////////////////////////////////
 	// contour finder
@@ -106,7 +104,7 @@ void kinect::setup(){
 	bShowEllipse				= false;
 	bShowAngle					= false;
 	bShowLines					= false;
-	bDraw						= false;
+	bDraw						= true;
 	
 	//////////////////////////////////////////////
 	// switch gate
@@ -121,7 +119,7 @@ void kinect::setup(){
 void kinect::update(){
 	//////////////////////////////////////////////
 	// receive OSC data
-//	receiveOscData();
+	receiveOscData();
 
 	//////////////////////////////////////////////
 	// receive video
@@ -156,8 +154,8 @@ void kinect::update(){
 			computeContourAnalysis();
 		}else {
 			// if there is nobody
-			degree=degree*.98;
-			distance=distanceLimit * W/2;
+			rotZf=rotZf*.98;
+			handsDist=handsDistThresh * W/2;
 			speed=speed*.98;
 			if (speed<0.01)speed=0.01;
 		}
@@ -224,10 +222,11 @@ void kinect::computeContourAnalysis(){
 	for (int i = 0; i < contourFinder.nBlobs; i++){
 		
 		int length_of_contour = contourFinder.blobs[i].pts.size();
+
+		// if blob is too small
 		if (length_of_contour<200){
-			//cout << length_of_contour<< endl;
-			degree *= .98;
-			distance=distanceLimit * W/2;
+			rotZf *= .98;
+			handsDist=handsDistThresh * W/2;
 			speed *= .98;
 			if (speed<0.01)speed=0.01;
 			break;
@@ -282,27 +281,29 @@ void kinect::computeContourAnalysis(){
 		center.y = (left.y + right.y) / 2.0;
 		angle.x = (right.x - center.x)/(W/2);
 		angle.y = (right.y - center.y)/(H/2);
-		distance = sqrt(angle.x * angle.x + angle.y * angle.y);
+		handsDist = sqrt(angle.x * angle.x + angle.y * angle.y);
 		
 		// if the arms are closed
-		if (distance<distanceLimit){
-			degree*=.98;
-			smoothDegree = degree;
-			distance=distanceLimit;
-			speed *= .98;
+		if (handsDist<handsDistThresh){
+			// slowly decrease rotation angles and speed
+			rotZf *= fadeFactor;
+			smoothDegree = rotZf;
+			handsDist = handsDistThresh;
+			speed *= fadeFactor;
 			if (speed<0.01)speed=0.01;
-			// if the arms are open
+		
+		// if the arms are open
 		}else {
-			degree = ((atan2 (angle.y, angle.x)) / PI ) * 180;
-			degree = degree - degree * smoothFactor + smoothDegree * smoothFactor;
-			smoothDegree = degree;
-			speed=speed*1.05;
-			if (speed>1)speed=1;
+			rotZf = ((atan2 (angle.y, angle.x)) / PI ) * 180;
+			rotZf = rotZf - rotZf * smoothFactor + smoothDegree * smoothFactor;
+			smoothDegree = rotZf;
+			speed = speed * 1.05;
+			if (speed>1) speed = 1;
 		}
 		
-		incrementDegree=(degree*0.03)+incrementDegree;
-		distance*=W/2;
+		rotYf=(rotZf*0.03)+rotYf;
 		
+		handsDist*=W/2;
 	}
 }
 
@@ -414,13 +415,14 @@ void kinect::drawContourAnalysis(float x, float y, float w, float h){
 	glPushMatrix();
 		glTranslatef(center.x,center.y,0);
 //		glTranslatef(W/2,H/2,0);
-		glRotatef(degree,0,0,1);
-		ofLine(-distance,0,distance,0);
+		glRotatef(rotZf,0,0,1);
+		ofLine(-handsDist,0,handsDist,0);
 	glPopMatrix();
 	
 	glPopMatrix();
 }
 
+/*
 //--------------------------------------------------------------
 void kinect::smoothingValues(){
 	
@@ -459,47 +461,48 @@ void kinect::normalizeValues(){
 		_osc_blobGeom[g].w = ofNormalize(_s_blobGeom[g].w,0.0f,240.0f);
 	}
 	sendingSocketReady = true; // start sending osc vars
-	
 }
+ */
 
 //--------------------------------------------------
-void kinect::getIPfromXML(){
+void kinect::setupOSC(){
 	////////////////////////////////// local xml capture
-	host_data.loadFile("ip_host.xml");
-	host_number = host_data.getValue("host_ip"," ",0);
-	host_port = host_data.getValue("host_port"," ",0);
+	host_data.loadFile("OSC_settings.xml");
+	host_ip = host_data.getValue("ip"," ",0);
+	host_send_port = host_data.getValue("send_port"," ",0);
+	host_receive_port = host_data.getValue("receive_port"," ",0);
+	
+//	sender.setup(host_ip.c_str(),atoi(host_send_port.c_str()));
+	sender.setup(host_ip, ofToInt(host_send_port));
+	receiver.setup( ofToInt(host_receive_port));
+	sendingSocketReady			= true;
+	//	sendOsc_CF					= true;
 }
 
 //--------------------------------------------------
 void kinect::sendOscData(){
 	ofxOscMessage m;
-	ofxOscBundle b;
-	
-	// sending Contour&Blobs data
-	if(sendOsc_CF){
-		m.clear();
 		
-		char temp[64];
-		m.setAddress("/posRot");
-		m.addFloatArg(0);
-		m.addFloatArg(0);
-		m.addFloatArg(speed*-0.02);
-		m.addFloatArg(rotX);
-		m.addFloatArg(incrementDegree + rotY);
-		m.addFloatArg(degree + rotZ);
-		b.addMessage(m);
-		
-	}
-	sender.sendBundle(b);
+	char temp[64];
+	m.setAddress("/posRot");
+	m.addFloatArg(0);
+	m.addFloatArg(0);
+	m.addFloatArg(speed*-0.02);
+	m.addFloatArg(rotX);
+	m.addFloatArg(rotYf + rotY);
+	m.addFloatArg(rotZf + rotZ);
 	
-	b.clear();
+	sender.sendMessage(m);
+	
 	m.clear();
 }
+
 
 //--------------------------------------------------
 void kinect::receiveOscData(){
 	// get the next message
 	ofxOscMessage m;
+	m.clear();
 	receiver.getNextMessage( &m );
 	
 	//check for rotation flag
@@ -509,16 +512,17 @@ void kinect::receiveOscData(){
 		rotY = m.getArgAsFloat( 1 );
 		rotZ = m.getArgAsFloat( 2 );
 		
+		rotZf=rotYf=0;
 		
-		degree=incrementDegree=0;
-		
-		//cout << "rotX" << rotX << endl;
-		//cout << "rotY" << rotY << endl;
-		//cout << "rotZ" << rotZ << endl;
+		ofLogNotice()
+		<< "rotation x = " << rotX
+		<< " y = " << rotY
+		<< " z = " << rotZ;
 	}
 	
 }
 
+ 
 //--------------------------------------------------------------
 void kinect::keyPressed  (int key){
 	
@@ -562,13 +566,13 @@ void kinect::keyPressed  (int key){
 			break;
 		
 		case 'i':
-			distanceLimit = distanceLimit + 0.01;
-			if (distanceLimit > 1.0) distanceLimit = 1.0;
+			handsDistThresh = handsDistThresh + 0.01;
+			if (handsDistThresh > 1.0) handsDistThresh = 1.0;
 			break;
 		
 		case 'o':
-			distanceLimit = distanceLimit - 0.01;
-			if (distanceLimit < 0) distanceLimit = 0;
+			handsDistThresh = handsDistThresh - 0.01;
+			if (handsDistThresh < 0) handsDistThresh = 0;
 			break;
 			
 		case 'x':
@@ -582,7 +586,7 @@ void kinect::keyPressed  (int key){
 			break;
 		
 		case 'd':
-			cout << "degree = " << degree << endl;
+			cout << "rotZf = " << rotZf << endl;
 			break;
 
 		case 'b':

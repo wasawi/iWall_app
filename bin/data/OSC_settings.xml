@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ip>localhost</ip>
+<send_port>9001</send_port>
+<receive_port>9002</receive_port>

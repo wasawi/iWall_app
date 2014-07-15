@@ -7,11 +7,11 @@ void appSwitch::setup(){
 	username = getUsername();
 	
 	// setup VLC
-	openVLC();
+//	openVLC();
 	vlc.setup("/Users/"+username+"/vlc.sock");
 	
 	// setup Blender
-	openBlender();
+//	openBlender();
 	
 	//	timer.setup(20000, false);
 	//	timer.startTimer();

@@ -2,7 +2,10 @@
 	<nearThreshold>250</nearThreshold>
 	<farThreshold>200</farThreshold>
 	<smoothFactor>0.9</smoothFactor>
-	<distanceLimit>0.845833</distanceLimit>
-	<speed>0.01</speed>
+	<distanceLimit>0.916667</distanceLimit>
+	<speed>0.0378987</speed>
 <panel/>
+<gateOpenDelay>2000</gateOpenDelay>
+	<gateCloseDelay>2000</gateCloseDelay>
+<handsDistThresh>0.935417</handsDistThresh>
 </panel>
