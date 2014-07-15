@@ -1,10 +1,10 @@
 # Some general ignore patterns
 
-*/bin/*
-!*/bin/data/
+#*/bin/*
+#!*/bin/data/
 # for bin folder in root
-/bin/*
-!/bin/data/
+#/bin/*
+#!/bin/data/
 
 build/
 obj/
@@ -89,8 +89,4 @@ Desktop.ini
 *.log
 *.sql
 *.sqlite
-
-
-
-data/
 

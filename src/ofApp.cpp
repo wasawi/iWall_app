@@ -17,6 +17,7 @@ void ofApp::setup(){
 				  this,								//pointer to the class that is going to be listening.
 				  &ofApp::switcher);				//pointer to the method that's going to be called when a new event is broadcasted (callback method).
 
+	ofSetLogLevel(OF_LOG_NOTICE);
 }
 
 
@@ -58,7 +59,7 @@ void ofApp::update(){
 	
 	knect.update();
 	
-//	apps.update();
+	apps.update();
 
 }
 

@@ -1,0 +1,8 @@
+<panel>
+	<nearThreshold>250</nearThreshold>
+	<farThreshold>200</farThreshold>
+	<smoothFactor>0.9</smoothFactor>
+	<distanceLimit>0.845833</distanceLimit>
+	<speed>0.01</speed>
+<panel/>
+</panel>

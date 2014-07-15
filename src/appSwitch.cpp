@@ -2,19 +2,19 @@
 
 //--------------------------------------------------------------
 void appSwitch::setup(){
-	ofSetLogLevel(OF_LOG_VERBOSE);
-	
 	isBlenderOnFocus=true;
 	isOnInit = true;
+	username = getUsername();
 	
+	// setup VLC
 	openVLC();
-	vlc.setup("/Users/ntnu/vlc.sock");
+	vlc.setup("/Users/"+username+"/vlc.sock");
 	
-//	timer.setup(20000, false);
-//	timer.startTimer();
-	
+	// setup Blender
 	openBlender();
-	ofSetLogLevel(OF_LOG_NOTICE);
+	
+	//	timer.setup(20000, false);
+	//	timer.startTimer();
 }
 
 //--------------------------------------------------------------
@@ -65,8 +65,8 @@ void appSwitch::update(){
 
 //--------------------------------------------------------------
 void appSwitch::openBlender(){
-//	string iWallApp="/Users/ntnu/Desktop/iWall/soft/Blender/blender.app/Contents/MacOS/blender /Users/ntnu/Desktop/iWall/BlenderFiles/Hallway_01.blend -noaudio -W";
-	string iWallApp="open /Users/ntnu/Desktop/iWall/BlenderFiles/Hallway_01.app &";
+//	string iWallApp="/Users/"+username+"/Desktop/iWall/soft/Blender/blender.app/Contents/MacOS/blender /Users/"+username+"/Desktop/iWall/BlenderFiles/Hallway_01.blend -noaudio -W";
+	string iWallApp="open /Users/"+username+"/Desktop/iWall/BlenderFiles/Hallway_01.app &";
 	ofSystem(iWallApp);
 }
 //--------------------------------------------------------------
@@ -76,7 +76,7 @@ void appSwitch::focusBlender(){
 	
 	string iWallApp="open -a Hallway_01 &";
 //	string iWallApp="open -a blender &";
-//	string iWallApp="open /Users/ntnu/Desktop/iWall/BlenderFiles/Hallway_01.app &";
+//	string iWallApp="open /Users/"+username+"/Desktop/iWall/BlenderFiles/Hallway_01.app &";
 	ofSystem(iWallApp);
 }
 //--------------------------------------------------------------
@@ -113,6 +113,17 @@ void appSwitch::stopVLC(){
 	vlc.run("pause");
 }
 
+string appSwitch::getUsername(){
+	string username = "";
+	username = ofSystem("whoami");
+	vector <string> cleanString;
+	cleanString = ofSplitString(username, "\n");
+	username = cleanString[0];
+	ofLogNotice() << "username = /"<< username<<"/";
+	
+	return username;
+}
+
 //--------------------------------------------------------------
 void appSwitch::exit() {
 
@@ -120,3 +131,5 @@ void appSwitch::exit() {
 	ofSystem("pkill -9 blenderplayer");
 	
 }
+
+

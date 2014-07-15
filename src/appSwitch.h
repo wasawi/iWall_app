@@ -27,8 +27,12 @@ public:
 	
 	void switchApp();
 	
+	string getUsername();
+	
 	ofxVLCRemote	vlc;
 	ofxTimer		timer;
 	bool			isBlenderOnFocus;
 	bool			isOnInit;
+	
+	string			username;
 };
