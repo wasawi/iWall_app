@@ -7,8 +7,8 @@ void appSwitch::setup(){
 	username = getUsername();
 	
 	// setup VLC
-//	openVLC();
-//	vlc.setup("/Users/"+username+"/vlc.sock");
+	openVLC();
+	vlc.setup("/Users/"+username+"/vlc.sock");
 	
 	// setup Blender
 	openBlender();
@@ -97,7 +97,7 @@ void appSwitch::initVLC(){
 
 //--------------------------------------------------------------
 void appSwitch::openVLC(){
-	string vlcPath="/Applications/VLC.app/Contents/MacOS/VLC --fullscreen --noaudio";
+	string vlcPath="open /Applications/_Mine/VLC.app/Contents/MacOS/VLC &";
 	ofSystem(vlcPath);
 }
 //--------------------------------------------------------------
