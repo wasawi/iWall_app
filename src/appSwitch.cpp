@@ -97,7 +97,7 @@ void appSwitch::initVLC(){
 
 //--------------------------------------------------------------
 void appSwitch::openVLC(){
-	string vlcPath="open /Applications/_Mine/VLC.app/Contents/MacOS/VLC &";
+	string vlcPath="open /Applications/VLC.app/Contents/MacOS/VLC &";
 	ofSystem(vlcPath);
 }
 //--------------------------------------------------------------
