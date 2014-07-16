@@ -1,11 +1,16 @@
 <panel>
 	<nearThreshold>250</nearThreshold>
 	<farThreshold>200</farThreshold>
-	<smoothFactor>0.9</smoothFactor>
+	<smoothFactor>0.9875</smoothFactor>
 	<distanceLimit>0.916667</distanceLimit>
 	<speed>0.0378987</speed>
 <panel/>
 <gateOpenDelay>2000</gateOpenDelay>
 	<gateCloseDelay>2000</gateCloseDelay>
 <handsDistThresh>0.935417</handsDistThresh>
+<fadeFactor>0.943333</fadeFactor>
+	<speed_Increment>1.05</speed_Increment>
+	<current_speed>0.01</current_speed>
+<rotYfactor>0.0416667</rotYfactor>
+	<rotZfactor>4.9375</rotZfactor>
 </panel>

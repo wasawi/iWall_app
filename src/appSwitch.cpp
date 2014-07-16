@@ -8,10 +8,10 @@ void appSwitch::setup(){
 	
 	// setup VLC
 //	openVLC();
-	vlc.setup("/Users/"+username+"/vlc.sock");
+//	vlc.setup("/Users/"+username+"/vlc.sock");
 	
 	// setup Blender
-//	openBlender();
+	openBlender();
 	
 	//	timer.setup(20000, false);
 	//	timer.startTimer();
@@ -97,7 +97,7 @@ void appSwitch::initVLC(){
 
 //--------------------------------------------------------------
 void appSwitch::openVLC(){
-	string vlcPath="/Applications/VLC.app/Contents/MacOS/VLC --fullscreen --noaudio &";
+	string vlcPath="/Applications/VLC.app/Contents/MacOS/VLC --fullscreen --noaudio";
 	ofSystem(vlcPath);
 }
 //--------------------------------------------------------------

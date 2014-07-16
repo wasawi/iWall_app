@@ -4,9 +4,9 @@
 void ofApp::setup(){
 	ofSetLogLevel(OF_LOG_VERBOSE);
 
-	knect.setup();
-
 	apps.setup();
+
+	knect.setup();
 	
 	//events
 	ofAddListener(knect.trigger,					//the ofEvent that we want to listen to.

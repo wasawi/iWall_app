@@ -91,9 +91,12 @@ public:
 							smoothFactor,
 							fadeFactor,
 							handsDistThresh,
+							speedIncrement,
 							speed,
 							gateOpenDelay,
-							gateCloseDelay;
+							gateCloseDelay,
+							rotYfactor,
+							rotZfactor;
 	ofxPanel gui;
 	
 	// switch gate
@@ -117,7 +120,5 @@ private:
 	CvBox2D32f				*_osc_blobInfo;									// normalized blobs info
 	vector<ofVec4f>			_osc_blobGeom;									// normalized blobs geometry
 //	bool					sendOsc_CF;
-
-
 	
 };

@@ -50,12 +50,15 @@ void kinect::setup(){
 	gui.setSize(W+w, 20);
 	gui.add(nearThreshold.set(	"nearThreshold",	250, 0, 255 ));
 	gui.add(farThreshold.set(	"farThreshold",		200, 0, 255 ));
-	gui.add(smoothFactor.set(	"smoothFactor",		0.9, 0, 1 ));
+	gui.add(smoothFactor.set(	"smoothFactor",		0.99, 0, 1 ));
 	gui.add(fadeFactor.set(		"fadeFactor",		0.98, 0.8, 1 ));
 	gui.add(handsDistThresh.set("handsDistThresh",	0.5,  0, 1 ));
-	gui.add(speed.set(			"speed",			0.01, 0, 1 ));
+	gui.add(speedIncrement.set(	"speed Increment",	1.05, 1, 1.5 ));
+	gui.add(speed.set(			"current speed",	0.01, 0, 1 ));
 	gui.add(gateOpenDelay.set(	"gateOpenDelay",	2000, 0, 10000));
 	gui.add(gateCloseDelay.set( "gateCloseDelay",	2000, 0, 10000));
+	gui.add(rotYfactor.set(		"rotYfactor",		1.0, 0, 10));
+	gui.add(rotZfactor.set(		"rotZfactor",		1.0, 0, 10));
 	gui.loadFromFile("settings.xml");
 	
 	rotZf		= 0;
@@ -109,7 +112,7 @@ void kinect::setup(){
 	//////////////////////////////////////////////
 	// switch gate
 	gate.setup(runningBlobsF);
-	gate.setPosition(border, 550);
+	gate.setPosition(border, 650);
 	gate.useDelay(gateOpenDelay, gateCloseDelay);
 	gate.setSize(W+w, 60);
 
@@ -277,6 +280,7 @@ void kinect::computeContourAnalysis(){
             }
 			
         }
+		
 		center.x = (left.x + right.x) / 2.0;
 		center.y = (left.y + right.y) / 2.0;
 		angle.x = (right.x - center.x)/(W/2);
@@ -285,25 +289,34 @@ void kinect::computeContourAnalysis(){
 		
 		// if the arms are closed
 		if (handsDist<handsDistThresh){
-			// slowly decrease rotation angles and speed
+			// slowly decrease rotation angles
 			rotZf *= fadeFactor;
 			smoothDegree = rotZf;
-			handsDist = handsDistThresh;
+
+			// slowly decrease speed
 			speed *= fadeFactor;
 			if (speed<0.01)speed=0.01;
-		
+			
+			handsDist = handsDistThresh;
+			
 		// if the arms are open
 		}else {
-			rotZf = ((atan2 (angle.y, angle.x)) / PI ) * 180;
+			// set rotation from kinect
+			rotZf = ((atan2 (angle.y, angle.x)) / PI )* 360;//degrees
+			rotZf *= rotZfactor;
+			//invert
+			rotZf = rotZf * -1.0;
+			// low pass filter
 			rotZf = rotZf - rotZf * smoothFactor + smoothDegree * smoothFactor;
 			smoothDegree = rotZf;
-			speed = speed * 1.05;
+			
+			// increment speed
+			speed = speed * speedIncrement;
 			if (speed>1) speed = 1;
 		}
 		
-		rotYf=(rotZf*0.03)+rotYf;
-		
-		handsDist*=W/2;
+		rotYf		= (rotZf*- rotYfactor)+rotYf;
+		handsDist	*= W/2;
 	}
 }
 
@@ -415,7 +428,7 @@ void kinect::drawContourAnalysis(float x, float y, float w, float h){
 	glPushMatrix();
 		glTranslatef(center.x,center.y,0);
 //		glTranslatef(W/2,H/2,0);
-		glRotatef(rotZf,0,0,1);
+		glRotatef((rotZf/rotZfactor)*-1,0,0,1);
 		ofLine(-handsDist,0,handsDist,0);
 	glPopMatrix();
 	
@@ -476,7 +489,7 @@ void kinect::setupOSC(){
 	sender.setup(host_ip, ofToInt(host_send_port));
 	receiver.setup( ofToInt(host_receive_port));
 	sendingSocketReady			= true;
-	//	sendOsc_CF					= true;
+//	sendOsc_CF					= true;
 }
 
 //--------------------------------------------------
@@ -489,8 +502,8 @@ void kinect::sendOscData(){
 	m.addFloatArg(0);
 	m.addFloatArg(speed*-0.02);
 	m.addFloatArg(rotX);
-	m.addFloatArg(rotYf + rotY);
-	m.addFloatArg(rotZf + rotZ);
+	m.addFloatArg(rotYf/180 + rotY);
+	m.addFloatArg(rotZf/180 + rotZ);
 	
 	sender.sendMessage(m);
 	
