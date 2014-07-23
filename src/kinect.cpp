@@ -48,6 +48,7 @@ void kinect::setup(){
 	gui.setup("panel"); // most of the time you don't need a name but don't forget to call setup
 	gui.setPosition(border, 380);
 	gui.setSize(W+w, 20);
+	gui.add(enableSwitch.set(	"enableSwitch",	true ));
 	gui.add(nearThreshold.set(	"nearThreshold",	250, 0, 255 ));
 	gui.add(farThreshold.set(	"farThreshold",		200, 0, 255 ));
 	gui.add(smoothFactor.set(	"smoothFactor",		0.99, 0, 1 ));
@@ -59,6 +60,7 @@ void kinect::setup(){
 	gui.add(gateCloseDelay.set( "gateCloseDelay",	2000, 0, 10000));
 	gui.add(rotYfactor.set(		"rotYfactor",		1.0, 0, 10));
 	gui.add(rotZfactor.set(		"rotZfactor",		1.0, 0, 10));
+	gui.add(rotXelevation.set(	"rotXelevation",	0.1, 0, 10));
 	gui.loadFromFile("settings.xml");
 	
 	rotZf		= 0;
@@ -501,7 +503,7 @@ void kinect::sendOscData(){
 	m.addFloatArg(0);
 	m.addFloatArg(0);
 	m.addFloatArg(speed*-0.02);
-	m.addFloatArg(rotX);
+	m.addFloatArg(rotX+rotXelevation);
 	m.addFloatArg(rotYf/180 + rotY);
 	m.addFloatArg(rotZf/180 + rotZ);
 	

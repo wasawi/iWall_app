@@ -3,7 +3,8 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
 	ofSetLogLevel(OF_LOG_VERBOSE);
-
+	ofSetFrameRate(30);
+	
 	apps.setup();
 
 	knect.setup();
@@ -11,9 +12,9 @@ void ofApp::setup(){
 	//events
 	ofAddListener(knect.trigger,					//the ofEvent that we want to listen to.
 				  this,								//pointer to the class that is going to be listening.
-				  &ofApp::manualSwitcher);				//pointer to the method that's going to be called when a new event is broadcasted (callback method).
+				  &ofApp::manualSwitcher);			//pointer to the method that's going to be called when a new event is broadcasted (callback method).
 
-	ofAddListener(knect.gate.gateEvent,					//the ofEvent that we want to listen to.
+	ofAddListener(knect.gate.gateEvent,				//the ofEvent that we want to listen to.
 				  this,								//pointer to the class that is going to be listening.
 				  &ofApp::switcher);				//pointer to the method that's going to be called when a new event is broadcasted (callback method).
 
@@ -24,16 +25,17 @@ void ofApp::setup(){
 //--------------------------------------------------------------
 void ofApp::switcher(float &e){
 	
-	if (e>0){
-		cout << "GO TO BLENDER"<< endl;
-		apps.switchToBlender();
+	if (knect.enableSwitch){
+		if (e>0){
+			cout << "GO TO BLENDER"<< endl;
+			apps.switchToBlender();
+		}
+		
+		else{
+			cout << "GO TO VLC"<< endl;
+			apps.switchToVLC();
+		}
 	}
-	
-	else{
-		cout << "GO TO BLENDER"<< endl;
-		apps.switchToVLC();
-	}
-	
 }
 
 
@@ -46,7 +48,7 @@ void ofApp::manualSwitcher(string &e){
 	}
 
 	if (e=="gotoVLC"){
-		cout << "GO TO BLENDER"<< endl;
+		cout << "GO TO VLC"<< endl;
 		apps.switchToVLC();
 	}
 

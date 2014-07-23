@@ -85,7 +85,7 @@ public:
 	ofEvent <string>			trigger;
 
 	//GUI
-	ofParameter<bool>		active;
+	ofParameter<bool>		enableSwitch;
 	ofParameter<float>		nearThreshold,
 							farThreshold,
 							smoothFactor,
@@ -96,7 +96,8 @@ public:
 							gateOpenDelay,
 							gateCloseDelay,
 							rotYfactor,
-							rotZfactor;
+							rotZfactor,
+							rotXelevation;
 	ofxPanel gui;
 	
 	// switch gate
