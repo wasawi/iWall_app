@@ -41,7 +41,7 @@ void kinect::setup(){
 	grayImage.allocate(videoCam.width, videoCam.height);
 	grayThreshNear.allocate(videoCam.width, videoCam.height);
 	grayThreshFar.allocate(videoCam.width, videoCam.height);
-
+	videoCam.setCameraTiltAngle(15);
 	
 	//////////////////////////////////////////////
 	//	Parameters
