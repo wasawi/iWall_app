@@ -5,16 +5,17 @@ void appSwitch::setup(){
 	isBlenderOnFocus=true;
 	isOnInit = true;
 	username = getUsername();
-	
+	fileCount = dir.listDir("/SMBShare/videos");
+
+	// setup Blender
+	openBlender();
+		
 	// setup VLC
 	openVLC();
 	vlc.setup("/Users/"+username+"/vlc.sock");
 	
-	// setup Blender
-	openBlender();
-	
-	//	timer.setup(20000, false);
-	//	timer.startTimer();
+	timer.setup(20000, false);
+	timer.startTimer();
 }
 
 //--------------------------------------------------------------
@@ -53,20 +54,21 @@ void appSwitch::switchToVLC(){
 
 //--------------------------------------------------------------
 void appSwitch::update(){
-	if (timer.isTimerFinished()){
+//	if (timer.isTimerFinished()){
 		
-		switchApp();
+//		switchToVLC();
 		
 		// for testing keep switching
-		timer.setup(10000, false);
-		timer.startTimer();
-	}
+//		timer.setup(10000, false);
+//		timer.startTimer();
+//	}
+	
 }
 
 //--------------------------------------------------------------
 void appSwitch::openBlender(){
 //	string iWallApp="/Users/"+username+"/Desktop/iWall/soft/Blender/blender.app/Contents/MacOS/blender /Users/"+username+"/Desktop/iWall/BlenderFiles/Hallway_01.blend -noaudio -W";
-	string iWallApp="open /Users/"+username+"/Desktop/iWall/BlenderFiles/Hallway_01.app &";
+	string iWallApp="open /iWall/BlenderFiles/Hallway_01.app &";
 	ofSystem(iWallApp);
 }
 //--------------------------------------------------------------
@@ -74,9 +76,8 @@ void appSwitch::focusBlender(){
 	cout << "****** resume blender" << endl;
 	cout << ofSystem("ps aux | grep blenderplayer | awk {'print $2'} | xargs KILL -CONT &");
 	
+	// focus on BLender app
 	string iWallApp="open -a Hallway_01 &";
-//	string iWallApp="open -a blender &";
-//	string iWallApp="open /Users/"+username+"/Desktop/iWall/BlenderFiles/Hallway_01.app &";
 	ofSystem(iWallApp);
 }
 //--------------------------------------------------------------
@@ -87,9 +88,18 @@ void appSwitch::stopBlender(){
 
 //--------------------------------------------------------------
 void appSwitch::initVLC(){
-	string dataPath="../../../data/";
-	vlc.run("add "+dataPath+"bball.mov");
+	vlc.run("clear");
 	
+	ofLogNotice("video file count ")<< fileCount;
+	
+	for (int i =0; i < fileCount; i++) {
+		string addfile="add "+dir.getPath(i);
+		ofLogNotice("VLC")<< addfile;
+		vlc.run(addfile);
+	}
+	
+	vlc.run("goto 1");
+	vlc.run("menu off");
 	vlc.run("loop");
 	vlc.run("play");
 	vlc.run("pause");
@@ -97,16 +107,41 @@ void appSwitch::initVLC(){
 
 //--------------------------------------------------------------
 void appSwitch::openVLC(){
-	string vlcPath="open /Applications/VLC.app/Contents/MacOS/VLC &";
-	ofSystem(vlcPath);
+//	string vlcPath="open /iWall/soft/VLC.app/Contents/MacOS/VLC &";
+
+	string vlcPath="open -a VLC";
+	
+	string options;
+/*	options+=" --no-video-title-show";
+	options+=" --no-video-deco";
+	options+=" --mouse-hide-timeout=10";
+	options+=" --fullscreen";
+	options+=" --no-audio";
+*/
+//	following do not work:
+	//	options+=" --no-mouse-events";
+	//	options+=" --no-keyboard-events";
+	//	options+="-I rc";
+	//	options+=" -I dummy";
+	//	options+=" --qt-minimal-view";
+	//	options+=" --rc-quiet";
+	//	options+=" --one-instance";
+	
+	ofLogNotice("VLC")<< vlcPath+options;
+	ofSystem(vlcPath+options+" &");
 }
+
 //--------------------------------------------------------------
 void appSwitch::focusVLC(){
-	vlc.run("pause");
+	
 	vlc.run("fullscreen");
 	
-	string vlcPath="open -a VLC &";
+	// focus on VLC app
+	string vlcPath="open -a VLC";
 	ofSystem(vlcPath);
+	
+	vlc.run("pause");
+
 }
 //--------------------------------------------------------------
 void appSwitch::stopVLC(){

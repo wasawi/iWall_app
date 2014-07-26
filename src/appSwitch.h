@@ -35,4 +35,8 @@ public:
 	bool			isOnInit;
 	
 	string			username;
+	
+	ofDirectory		dir;
+	int				fileCount;
+
 };

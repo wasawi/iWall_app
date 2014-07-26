@@ -4,6 +4,7 @@
 void ofApp::setup(){
 	ofSetLogLevel(OF_LOG_VERBOSE);
 	ofSetFrameRate(30);
+    ofHideCursor();
 	
 	apps.setup();
 
@@ -19,6 +20,7 @@ void ofApp::setup(){
 				  &ofApp::switcher);				//pointer to the method that's going to be called when a new event is broadcasted (callback method).
 
 	ofSetLogLevel(OF_LOG_NOTICE);
+
 }
 
 
@@ -61,8 +63,7 @@ void ofApp::update(){
 	
 	knect.update();
 	
-	apps.update();
-
+//	apps.update();
 }
 
 //--------------------------------------------------------------
