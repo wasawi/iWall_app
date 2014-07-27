@@ -5,7 +5,7 @@ void appSwitch::setup(){
 	isBlenderOnFocus=true;
 	isOnInit = true;
 	username = getUsername();
-	fileCount = dir.listDir("/SMBShare/videos");
+	fileCount = dir.listDir("/SMBShare/content");
 
 	// setup Blender
 	openBlender();
