@@ -19,10 +19,21 @@ void ofApp::setup(){
 				  this,								//pointer to the class that is going to be listening.
 				  &ofApp::switcher);				//pointer to the method that's going to be called when a new event is broadcasted (callback method).
 
-	ofSetLogLevel(OF_LOG_NOTICE);
+	//timer
+	timer.setup(20000, false);
+	timer.startTimer();
+	ofAddListener(timer.TIMER_REACHED, this, &ofApp::getNotification);
 
+	
+	ofSetLogLevel(OF_LOG_NOTICE);
+	
 }
 
+//--------------------------------------------------------------
+void ofApp::getNotification(unsigned int &e){
+	ofLog()<< "timer reached count =" << ofToString(e);
+	apps.switchToVLC();
+}
 
 //--------------------------------------------------------------
 void ofApp::switcher(float &e){
@@ -31,11 +42,13 @@ void ofApp::switcher(float &e){
 		if (e>0){
 			cout << "GO TO BLENDER"<< endl;
 			apps.switchToBlender();
+			knect.enableOSC(true);
 		}
 		
 		else{
 			cout << "GO TO VLC"<< endl;
 			apps.switchToVLC();
+			knect.enableOSC(false);
 		}
 	}
 }

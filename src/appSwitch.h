@@ -30,7 +30,7 @@ public:
 	string getUsername();
 	
 	ofxVLCRemote	vlc;
-	ofxTimer		timer;
+
 	bool			isBlenderOnFocus;
 	bool			isOnInit;
 	
@@ -38,5 +38,6 @@ public:
 	
 	ofDirectory		dir;
 	int				fileCount;
+
 
 };

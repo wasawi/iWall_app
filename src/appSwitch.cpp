@@ -14,8 +14,6 @@ void appSwitch::setup(){
 	openVLC();
 	vlc.setup("/Users/"+username+"/vlc.sock");
 	
-	timer.setup(20000, false);
-	timer.startTimer();
 }
 
 //--------------------------------------------------------------
@@ -54,15 +52,7 @@ void appSwitch::switchToVLC(){
 
 //--------------------------------------------------------------
 void appSwitch::update(){
-//	if (timer.isTimerFinished()){
-		
-//		switchToVLC();
-		
-		// for testing keep switching
-//		timer.setup(10000, false);
-//		timer.startTimer();
-//	}
-	
+
 }
 
 //--------------------------------------------------------------

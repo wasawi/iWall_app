@@ -87,6 +87,7 @@ void kinect::setup(){
 	//////////////////////////////////////////////
 	// OSC
 	setupOSC();
+	bOSCenabled					= false;
 	
 	//////////////////////////////////////////////
 	// contour finder
@@ -175,7 +176,9 @@ void kinect::update(){
 		//////////////////////////////////////////////
 		// send OSC data
 		if(sendingSocketReady){
-			sendOscData();
+			if (bOSCenabled){
+				sendOscData();
+			}
 		}
 	}
 	
@@ -491,7 +494,6 @@ void kinect::setupOSC(){
 	sender.setup(host_ip, ofToInt(host_send_port));
 	receiver.setup( ofToInt(host_receive_port));
 	sendingSocketReady			= true;
-//	sendOsc_CF					= true;
 }
 
 //--------------------------------------------------
@@ -613,8 +615,11 @@ void kinect::keyPressed  (int key){
 			message = "gotoVLC";
 			ofNotifyEvent(trigger, message, this);
 			break;
-
 	}
+}
+//--------------------------------------------------------------
+void kinect::enableOSC(bool enable) {
+	bOSCenabled = enable;
 }
 
 //--------------------------------------------------------------

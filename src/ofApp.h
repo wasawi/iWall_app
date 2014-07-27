@@ -16,10 +16,15 @@ public:
 	void exit();
 	void keyPressed(int key);
 	
-	ofxTimer		timer;
 	kinect			knect;
 	appSwitch		apps;
 	
 	void switcher(float &e);
 	void manualSwitcher(string &e);
+	
+	
+	ofxTimer		timer;
+	void getNotification(unsigned int &e);
+
+	
 };
