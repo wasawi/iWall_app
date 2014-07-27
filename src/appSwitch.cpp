@@ -107,17 +107,19 @@ void appSwitch::initVLC(){
 
 //--------------------------------------------------------------
 void appSwitch::openVLC(){
-//	string vlcPath="open /iWall/soft/VLC.app/Contents/MacOS/VLC &";
-
-	string vlcPath="open -a VLC";
+//	string vlcPath="open /iWall/soft/VLC.app/Contents/MacOS/VLC --args";
+//	string vlcPath="/iWall/soft/VLC.app/Contents/MacOS/VLC";
+	
+	string vlcPath="open -a VLC --args";
 	
 	string options;
-/*	options+=" --no-video-title-show";
+	
+	options+=" --no-video-title-show";
 	options+=" --no-video-deco";
-	options+=" --mouse-hide-timeout=10";
+	options+=" --mouse-hide-timeout=1000";
 	options+=" --fullscreen";
 	options+=" --no-audio";
-*/
+
 //	following do not work:
 	//	options+=" --no-mouse-events";
 	//	options+=" --no-keyboard-events";
@@ -133,19 +135,28 @@ void appSwitch::openVLC(){
 
 //--------------------------------------------------------------
 void appSwitch::focusVLC(){
-	
-	vlc.run("fullscreen");
+
+//	vlc.run("fullscreen on");
+
 	
 	// focus on VLC app
 	string vlcPath="open -a VLC";
-	ofSystem(vlcPath);
+
+	// this will open a new instance each time... no good.
+//	string vlcPath="/iWall/soft/VLC.app/Contents/MacOS/VLC";
+	ofSystem(vlcPath+" &");
+	
 	
 	vlc.run("pause");
+	vlc.run("f on");
 
+//	vlc.run("fullscreen on");
+//	vlc.run("fullscreen on");
 }
 //--------------------------------------------------------------
 void appSwitch::stopVLC(){
 	vlc.run("pause");
+	vlc.run("f off");
 }
 
 string appSwitch::getUsername(){
