@@ -54,13 +54,15 @@ void kinect::setup(){
 	gui.add(smoothFactor.set(	"smoothFactor",		0.99, 0, 1 ));
 	gui.add(fadeFactor.set(		"fadeFactor",		0.98, 0.8, 1 ));
 	gui.add(handsDistThresh.set("handsDistThresh",	0.5,  0, 1 ));
-	gui.add(speedIncrement.set(	"speed Increment",	1.05, 1, 1.5 ));
 	gui.add(speed.set(			"current speed",	0.01, 0, 1 ));
 	gui.add(gateOpenDelay.set(	"gateOpenDelay",	2000, 0, 10000));
 	gui.add(gateCloseDelay.set( "gateCloseDelay",	2000, 0, 10000));
-	gui.add(rotYfactor.set(		"rotYfactor",		1.0, 0, 10));
-	gui.add(rotZfactor.set(		"rotZfactor",		1.0, 0, 10));
-	gui.add(rotXelevation.set(	"rotXelevation",	0.1, 0, 10));
+	gui.add(rotXfactor.set(		"rotX factor",		0.1, 0, 3));
+	gui.add(rotYfactor.set(		"rotY factor",		1.0, 0, 10));
+	gui.add(rotZfactor.set(		"rotZ factor",		1.0, 0, 10));
+	gui.add(speedFactor.set(	"speed factor",		1.01, 0, 2 ));
+	gui.add(rotationLimit.set(	"rotation limit",	45,	 0, 180 ));
+	
 	gui.loadFromFile("settings.xml");
 	
 	rotZf		= 0;
@@ -115,9 +117,9 @@ void kinect::setup(){
 	//////////////////////////////////////////////
 	// switch gate
 	gate.setup(runningBlobsF);
-	gate.setPosition(border, 650);
+	gate.setPosition(border, 700);
 	gate.useDelay(gateOpenDelay, gateCloseDelay);
-	gate.setSize(W+w, 60);
+	gate.setSize(W+w, 20);
 
 }
 
@@ -156,7 +158,7 @@ void kinect::update(){
 		runningBlobs = contourFinder.findContours(grayImage, 10, (videoCam.width*videoCam.height)/2, MAX_NUM_CONTOURS_TO_FIND, false);
 		runningBlobsF = runningBlobs;
 
-		if(runningBlobs > 0){
+		if(runningBlobs > 0 && bOSCenabled){
 			computeContourAnalysis();
 		}else {
 			// if there is nobody
@@ -292,34 +294,37 @@ void kinect::computeContourAnalysis(){
 		angle.y = (right.y - center.y)/(H/2);
 		handsDist = sqrt(angle.x * angle.x + angle.y * angle.y);
 		
-		// if the arms are closed
-		if (handsDist<handsDistThresh){
-			// slowly decrease rotation angles
-			rotZf *= fadeFactor;
+		if (handsDist<handsDistThresh){			// if the arms are closed
+
+			rotZf *= fadeFactor;				// slowly decrease rotation angles
 			smoothDegree = rotZf;
 
-			// slowly decrease speed
-			speed *= fadeFactor;
+			speed *= fadeFactor;				// slowly decrease speed
 			if (speed<0.01)speed=0.01;
 			
 			handsDist = handsDistThresh;
+		
+		}else {									// if the arms are open
 			
-		// if the arms are open
-		}else {
-			// set rotation from kinect
-			rotZf = ((atan2 (angle.y, angle.x)) / PI )* 360;//degrees
-			rotZf *= rotZfactor;
-			//invert
-			rotZf = rotZf * -1.0;
+			rotZf = atan2 (angle.y, angle.x);	// get rotation from kinect
+			rotZf = (rotZf / PI) * 180;			// to degrees
+			rotZf *= rotZfactor;				// factor
+			rotZf = rotZf * -1.0;				//invert
+
 			// low pass filter
 			rotZf = rotZf - rotZf * smoothFactor + smoothDegree * smoothFactor;
 			smoothDegree = rotZf;
 			
 			// increment speed
-			speed = speed * speedIncrement;
+			speed = speed * speedFactor;
 			if (speed>1) speed = 1;
 		}
+
+		// apply rotation limits
+		rotZf = MIN(rotZf, (float) rotationLimit);
+		rotZf = MAX(rotZf, (float) rotationLimit * -1);
 		
+		// calc rotation in Y
 		rotYf		= (rotZf*- rotYfactor)+rotYf;
 		handsDist	*= W/2;
 	}
@@ -431,9 +436,9 @@ void kinect::drawContourAnalysis(float x, float y, float w, float h){
 	
 	ofSetColor(ofColor::white);
 	glPushMatrix();
-		glTranslatef(center.x,center.y,0);
-//		glTranslatef(W/2,H/2,0);
-		glRotatef((rotZf/rotZfactor)*-1,0,0,1);
+//		glTranslatef(center.x,center.y,0);
+		glTranslatef(WBig/2,HBig/2,0);
+		glRotatef((rotZf)*-1,0,0,1);
 		ofLine(-handsDist,0,handsDist,0);
 	glPopMatrix();
 	
@@ -500,17 +505,31 @@ void kinect::setupOSC(){
 void kinect::sendOscData(){
 	ofxOscMessage m;
 		
+	float finalSpeed = speed	* -0.02;
+	float finalX = rotXfactor	+ rotX;		// current + initial
+	float finalY = rotYf		+ rotY;		// current + initial
+	float finalZ = rotZf		+ rotZ;		// current + initial
+	
+//	finalX = ofDegToRad(finalX);
+	finalY = ofDegToRad(finalY);
+	finalZ = ofDegToRad(finalZ);
+	
+	/*
+	ofLogNotice("finalX")<<finalX;
+	ofLogNotice("finalY")<<finalY;
+	ofLogNotice("finalZ")<<finalZ;
+	*/
+	
 	char temp[64];
 	m.setAddress("/posRot");
 	m.addFloatArg(0);
 	m.addFloatArg(0);
-	m.addFloatArg(speed*-0.02);
-	m.addFloatArg(rotX+rotXelevation);
-	m.addFloatArg(rotYf/180 + rotY);
-	m.addFloatArg(rotZf/180 + rotZ);
+	m.addFloatArg(finalSpeed);
+	m.addFloatArg(finalX);
+	m.addFloatArg(finalY);
+	m.addFloatArg(finalZ);
 	
 	sender.sendMessage(m);
-	
 	m.clear();
 }
 

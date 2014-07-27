@@ -1,13 +1,13 @@
 <panel>
 	<nearThreshold>255</nearThreshold>
 	<farThreshold>241.188</farThreshold>
-	<smoothFactor>0.975</smoothFactor>
+	<smoothFactor>0.979167</smoothFactor>
 	<distanceLimit>0.916667</distanceLimit>
 	<speed>0.0378987</speed>
 <panel/>
 <gateOpenDelay>3000</gateOpenDelay>
 	<gateCloseDelay>3000</gateCloseDelay>
-<handsDistThresh>0.416667</handsDistThresh>
+<handsDistThresh>0.64375</handsDistThresh>
 <fadeFactor>0.943333</fadeFactor>
 	<speed_Increment>1.05</speed_Increment>
 	<current_speed>0.01</current_speed>
@@ -15,4 +15,9 @@
 	<rotZfactor>4.9375</rotZfactor>
 <enableSwitch>1</enableSwitch>
 	<rotXelevation>0.1</rotXelevation>
+<rotX_factor>0.16875</rotX_factor>
+	<rotY_factor>0.0625</rotY_factor>
+	<rotZ_factor>1</rotZ_factor>
+	<speed_factor>1.08333</speed_factor>
+	<rotation_limit>43.5</rotation_limit>
 </panel>

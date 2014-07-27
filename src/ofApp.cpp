@@ -4,7 +4,7 @@
 void ofApp::setup(){
 	ofSetLogLevel(OF_LOG_VERBOSE);
 	ofSetFrameRate(30);
-    ofHideCursor();
+//    ofHideCursor();
 	
 	apps.setup();
 
@@ -60,11 +60,13 @@ void ofApp::manualSwitcher(string &e){
 	if (e=="gotoBlender"){
 		cout << "GO TO BLENDER"<< endl;
 		apps.switchToBlender();
+		knect.enableOSC(true);
 	}
 
 	if (e=="gotoVLC"){
 		cout << "GO TO VLC"<< endl;
 		apps.switchToVLC();
+		knect.enableOSC(false);
 	}
 
 }

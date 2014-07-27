@@ -91,13 +91,15 @@ public:
 							smoothFactor,
 							fadeFactor,
 							handsDistThresh,
-							speedIncrement,
+							speedFactor,
 							speed,
 							gateOpenDelay,
 							gateCloseDelay,
 							rotYfactor,
 							rotZfactor,
-							rotXelevation;
+							rotXfactor,
+							rotationLimit;
+	
 	ofxPanel gui;
 	
 	// switch gate
