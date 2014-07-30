@@ -10,7 +10,7 @@
 #include "ofxOpenCv.h"				// computer vision library
 #include "ofxOsc.h"					// Open Sound Control communication library
 #include "ofxXmlSettings.h"			// read/write on/to xml file library
-#include "ofxKinect.h"
+#include "ofxKinectV2.h"
 
 // imageAnalysis
 #include "ofContourAnalysis.h"		// contour geometry analysis [from Chris Sugrue]
@@ -36,7 +36,8 @@ public:
 //	void normalizeValues();												// normalize numerical data
 	void calculateMaxMin();												// get Max min position of a contour
 	
-	ofxKinect					videoCam;
+	ofxKinectV2					kinectV2;
+//	ofxKinect					videoCam;
 //	ofxVideoGrabberProsilica	videoCam;
 		
 	int w, h, W, H, WBig, HBig,  border;

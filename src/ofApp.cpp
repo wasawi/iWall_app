@@ -3,12 +3,13 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
 	ofSetLogLevel(OF_LOG_VERBOSE);
-	ofSetFrameRate(30);
+	ofSetFrameRate(15);
 //    ofHideCursor();
 	
-	apps.setup();
+//	apps.setup();
 
 	knect.setup();
+	knect.enableOSC(true);
 	
 	//events
 	ofAddListener(knect.trigger,					//the ofEvent that we want to listen to.
@@ -20,13 +21,14 @@ void ofApp::setup(){
 				  &ofApp::switcher);				//pointer to the method that's going to be called when a new event is broadcasted (callback method).
 
 	//timer
-	timer.setup(20000, false);
-	timer.startTimer();
+//	timer.setup(20000, false);
+//	timer.startTimer();
 	ofAddListener(timer.TIMER_REACHED, this, &ofApp::getNotification);
 
-	
 	ofSetLogLevel(OF_LOG_NOTICE);
 	
+	string restart = "echo iWall | sudo shutdown -r -S now";
+	ofSystem(restart);
 }
 
 //--------------------------------------------------------------
@@ -74,11 +76,9 @@ void ofApp::manualSwitcher(string &e){
 
 //--------------------------------------------------------------
 void ofApp::update(){
-	ofBackground(100,100,100);
+	ofBackground(80);
 	
 	knect.update();
-	
-//	apps.update();
 }
 
 //--------------------------------------------------------------

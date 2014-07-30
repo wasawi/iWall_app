@@ -4,44 +4,27 @@
 void kinect::setup(){
 	
 	//////////////////////////////////////////////
-	// Camera settings
-//	videoCam.setVerbose(true);
-//	videoCam.setDeviceID(6);
-//	videoCam.initGrabber(640,480,true);
+	// kinectV2 settings
+	kinectV2.open();		// opens first available kinect
 	
-	// enable depth->video image calibration
-	videoCam.setRegistration(true);
-	videoCam.init();
-//	videoCam.init(true); // shows infrared instead of RGB video image
-	videoCam.init(false, false); // disable video image (faster fps)
-	videoCam.open();		// opens first available videoCam
-	
-	// print the intrinsic IR sensor values
-	if(videoCam.isConnected()) {
-		ofLogNotice() << "sensor-emitter dist: " << videoCam.getSensorEmitterDistance() << "cm";
-		ofLogNotice() << "sensor-camera dist:  " << videoCam.getSensorCameraDistance() << "cm";
-		ofLogNotice() << "zero plane pixel size: " << videoCam.getZeroPlanePixelSize() << "mm";
-		ofLogNotice() << "zero plane dist: " << videoCam.getZeroPlaneDistance() << "mm";
-	}
 
-	
 	//////////////////////////////////////////////
 	// interface
 	w = 160;
 	h = 120;
 	W = 320;
 	H = 240;
-	WBig = 640;
-	HBig = 480;
+	WBig = 512;
+	HBig = 424;
 	border= 50;
-		
+	
 	//////////////////////////////////////////////
-	//	kinect
-	colorImg.allocate(videoCam.width, videoCam.height);
-	grayImage.allocate(videoCam.width, videoCam.height);
-	grayThreshNear.allocate(videoCam.width, videoCam.height);
-	grayThreshFar.allocate(videoCam.width, videoCam.height);
-	videoCam.setCameraTiltAngle(15);
+	//	kinect pixels
+//	colorImg.allocate(kinectV2.width, kinectV2.height);
+	grayImage.allocate(kinectV2.width, kinectV2.height);
+	grayThreshNear.allocate(kinectV2.width, kinectV2.height);
+	grayThreshFar.allocate(kinectV2.width, kinectV2.height);
+	kinectV2.setCameraTiltAngle(15);
 	
 	//////////////////////////////////////////////
 	//	Parameters
@@ -49,6 +32,10 @@ void kinect::setup(){
 	gui.setPosition(border, 380);
 	gui.setSize(W+w, 20);
 	gui.add(enableSwitch.set(	"enableSwitch",	true ));
+
+	gui.add(kinectV2.minDistance.set(	"minDistance",		250, 0, 12000 ));
+	gui.add(kinectV2.maxDistance.set(	"maxDistance",		200, 0, 12000 ));
+
 	gui.add(nearThreshold.set(	"nearThreshold",	250, 0, 255 ));
 	gui.add(farThreshold.set(	"farThreshold",		200, 0, 255 ));
 	gui.add(smoothFactor.set(	"smoothFactor",		0.99, 0, 1 ));
@@ -120,7 +107,7 @@ void kinect::setup(){
 	gate.setPosition(border, 700);
 	gate.useDelay(gateOpenDelay, gateCloseDelay);
 	gate.setSize(W+w, 20);
-
+	
 }
 
 //--------------------------------------------------------------
@@ -132,16 +119,16 @@ void kinect::update(){
 	//////////////////////////////////////////////
 	// receive video
     bool bNewFrame = false;
-	videoCam.update();
-	bNewFrame = videoCam.isFrameNew();
-	
+	kinectV2.update();
+	bNewFrame = kinectV2.isFrameNew();
+
 	if (bNewFrame){
 
 		//////////////////////////////////////////////
 		// Kinect
-		// load grayscale depth image from the videoCam source
-		grayImage.setFromPixels(videoCam.getDepthPixels(), videoCam.width, videoCam.height);
-		
+		// load grayscale depth image from the kinect source
+		grayImage.setFromPixels(kinectV2.getDepthPixels());
+
 		// we do two thresholds - one for the far plane and one for the near plane
 		// we then do a cvAnd to get the pixels which are a union of the two thresholds
 			grayThreshNear = grayImage;
@@ -155,10 +142,11 @@ void kinect::update(){
 		
 		// find contours which are between the size of 20 pixels and 1/3 the w*h pixels.
 		// also, find holes is set to true so we will get interior contours as well....
-		runningBlobs = contourFinder.findContours(grayImage, 10, (videoCam.width*videoCam.height)/2, MAX_NUM_CONTOURS_TO_FIND, false);
+		runningBlobs = contourFinder.findContours(grayImage, 10, (kinectV2.width*kinectV2.height)/2, MAX_NUM_CONTOURS_TO_FIND, false);
 		runningBlobsF = runningBlobs;
 
 		if(runningBlobs > 0 && bOSCenabled){
+//			cout << ".";
 			computeContourAnalysis();
 		}else {
 			// if there is nobody
@@ -182,30 +170,30 @@ void kinect::update(){
 				sendOscData();
 			}
 		}
+	
 	}
 	
 	//////////////////////////////////////////////
 	// switch gate
 	gate.update();
-
+	
 }
 
 //--------------------------------------------------------------
 void kinect::draw(){
-	ofBackground(80);
-
 	if (bDraw) {
 		//////////////////////////////////////////////
 		// Kinect
 		
-	//	videoCam.draw(420, 10, 400, 300);		// draw from the live videoCam
-		videoCam.drawDepth	(border+W+1, border, w, h);
-		grayImage.draw		(border+W+1, border+h+1, w, h);
-		contourFinder.draw	(border+W+1, border+h+1, w, h);
+	//	kinect.draw(420, 10, 400, 300);		// draw from the live kinect
+		
+		kinectV2.drawDepth	(border+W+1, border, w, h);			// Top right
+		grayImage.draw		(border+W+1, border+h+1, w, h);		// Bottom Right
+		contourFinder.draw	(border+W+1, border+h+1, w, h);		// Bottom Right
 		
 		// blob detection + contours
 		if(sendingSocketReady){
-			drawContourAnalysis( border, border, W, H);
+			drawContourAnalysis( border, border, W, H);			// Main image
 		}
 		
 		// GUI
@@ -219,7 +207,7 @@ void kinect::draw(){
 	ofSetColor(255, 255, 255);
 	stringstream reportStream;
 	reportStream << "press h to hide/show image previews" << endl
-	<< "press k to stop/start Kinect, current status: " << videoCam.isConnected() << endl
+	<< "press k to stop/start Kinect, current status: " << kinectV2.isConnected() << endl
 	<< "num blobs found " << contourFinder.nBlobs << endl
 	<< "press ESC to close" << endl
 	<< "fps: " << ofGetFrameRate() << endl;
@@ -643,6 +631,6 @@ void kinect::enableOSC(bool enable) {
 
 //--------------------------------------------------------------
 void kinect::exit() {
-	videoCam.setCameraTiltAngle(0); // zero the tilt on exit
-	videoCam.close();
+	kinectV2.setCameraTiltAngle(0); // zero the tilt on exit
+	kinectV2.close();
 }
