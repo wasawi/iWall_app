@@ -31,7 +31,7 @@ public:
 
 	// scheduled shut down
 //	ofxTimeEvent	*event;
-//	void listenEvent( ofxTimeEventData& data );
+	void listenEvent( ofxTimeEventData& data );
 	ofxShutdown		shutdown;
 	
 	

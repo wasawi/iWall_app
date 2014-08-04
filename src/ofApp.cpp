@@ -3,7 +3,7 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
 	ofSetLogLevel(OF_LOG_VERBOSE);
-	ofSetFrameRate(10);
+	ofSetFrameRate(30);
 	
 	// VLC and Blender manager
 	apps.setup();
@@ -29,7 +29,6 @@ void ofApp::setup(){
 	
 	// a scheduled event to close everything (not used)
 //	event = ofxTimeEvent::getInstance();
-//	ofAddListener( event->eventData, this, &ofApp::listenEvent);
 //	event->registerSec(1, 30);
 	/*
 	// event every even minute
@@ -37,6 +36,7 @@ void ofApp::setup(){
 		event->registerMin(i+1, i*2);
 	}*/
 //	event->registerHourMin(1, 17, 8);
+//	ofAddListener( event->eventData, this, &ofApp::listenEvent);
 	
 	
 	ofSetLogLevel(OF_LOG_NOTICE);
@@ -131,6 +131,7 @@ void ofApp::keyPressed  (int key){
 			
 	}
 }
+
 
 //--------------------------------------------------------------
 void ofApp::listenEvent( ofxTimeEventData& data )

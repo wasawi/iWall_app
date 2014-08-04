@@ -154,7 +154,8 @@ void kinect::update(){
 	kinectV2.update();
 	bNewFrame = kinectV2.isFrameNew();
 
-	if (bNewFrame){
+	// kinect 2 is too slow.. we need to process every frame
+	if (true){ //bNewFrame
 
 		//////////////////////////////////////////////
 		// Kinect
@@ -329,7 +330,7 @@ void kinect::computeContourAnalysis(){
 			rotZf = atan2 (angle.y, angle.x);	// get rotation from kinect
 			rotZf = (rotZf / PI) * 180;			// to degrees
 			rotZf *= rotZfactor;				// factor
-			rotZf = rotZf * -1.0;				//invert
+//			rotZf = rotZf * -1.0;				//invert
 
 			// low pass filter
 			rotZf = rotZf - rotZf * smoothFactor + smoothDegree * smoothFactor;
