@@ -3,11 +3,12 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
 	ofSetLogLevel(OF_LOG_VERBOSE);
-	ofSetFrameRate(15);
-//    ofHideCursor();
+	ofSetFrameRate(10);
 	
-//	apps.setup();
+	// VLC and Blender manager
+	apps.setup();
 
+	//kinect
 	knect.setup();
 	knect.enableOSC(true);
 	
@@ -20,15 +21,25 @@ void ofApp::setup(){
 				  this,								//pointer to the class that is going to be listening.
 				  &ofApp::switcher);				//pointer to the method that's going to be called when a new event is broadcasted (callback method).
 
-	//timer
-//	timer.setup(20000, false);
-//	timer.startTimer();
+	// a timer to switch to VLC
+	timer.setup(20000, false);
+	timer.startTimer();
 	ofAddListener(timer.TIMER_REACHED, this, &ofApp::getNotification);
 
-	ofSetLogLevel(OF_LOG_NOTICE);
 	
-	string restart = "echo iWall | sudo shutdown -r -S now";
-	ofSystem(restart);
+	// a scheduled event to close everything (not used)
+//	event = ofxTimeEvent::getInstance();
+//	ofAddListener( event->eventData, this, &ofApp::listenEvent);
+//	event->registerSec(1, 30);
+	/*
+	// event every even minute
+	for (int i=0;i<30;i++){
+		event->registerMin(i+1, i*2);
+	}*/
+//	event->registerHourMin(1, 17, 8);
+	
+	
+	ofSetLogLevel(OF_LOG_NOTICE);
 }
 
 //--------------------------------------------------------------
@@ -94,10 +105,24 @@ void ofApp::keyPressed  (int key){
 	
 	switch (key){
 			
-		case 'a':{
+		case 'k':{
+			// this works well
+			ofKillApp("iWall");
 		}break;
 			
 		case 's':{
+			/*
+			// wait 3 seconds before sending the shutdown command
+			shutdown.setDelay(3);
+			// shutdown command: shutdown in 1 minute (to let OF close well)
+			shutdown.setParams("-h +10");
+			// set admin password if user is not admin
+			shutdown.setUserIsAdmin(false, "show");
+			// close OF before shutting dowmn
+			shutdown.exitOFAfterShutdownCommand(true);
+			// execute
+			shutdown.shutdownExecute();
+			*/
 		}break;
 
 		case 'i':{
@@ -108,7 +133,40 @@ void ofApp::keyPressed  (int key){
 }
 
 //--------------------------------------------------------------
-void ofApp::exit() {
-	knect.exit();
-	apps.exit();
+void ofApp::listenEvent( ofxTimeEventData& data )
+{
+    ofLogNotice("listenEvent") << "TIME EVENT DISPATCHED" <<
+	" hour:" << data.hour<<
+	" minute:" << data.minutes<<
+	" second:" << data.second<<	endl;
+
+	// attention. shutDown does not work.
+	// we will only close the app and do the shutdown in system preferences.
+	
+	/*
+	// wait 3 seconds before sending the shutdown command
+	shutdown.setDelay(3);
+	// shutdown command: shutdown in 1 minute (to let OF close well)
+	shutdown.setParams("-h +10");
+	// set admin password if user is not admin
+	shutdown.setUserIsAdmin(false, "show");
+	// close OF before shutting dowmn
+	shutdown.exitOFAfterShutdownCommand(true);
+	// execute
+	shutdown.shutdownExecute();
+	 */
+	
+	ofKillApp("iWall");
 }
+
+
+//--------------------------------------------------------------
+void ofApp::exit() {
+
+	apps.exit();
+//	knect.exit();
+	// kinect is not closing well, ugly fix here:
+	ofKillApp("iWall");
+}
+
+

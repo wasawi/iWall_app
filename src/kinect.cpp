@@ -2,11 +2,43 @@
 
 //--------------------------------------------------------------
 void kinect::setup(){
+
+	//////////////////////////////////////////////
+	// CREATE ATTEMPTS XML
+	if (!ofFile("attempts.xml").exists()){
+		StartupAttempts.add(attempts.set("att",	0, 0, 255 ));
+		attempts = 0;
+		StartupAttempts.saveToFile("attempts.xml");
+	}
 	
 	//////////////////////////////////////////////
 	// kinectV2 settings
-	kinectV2.open();		// opens first available kinect
+	bool succeed = kinectV2.open();		// opens first available kinect
 	
+	if (!succeed) {
+		StartupAttempts.add(attempts.set("att",	0, 0, 255 ));
+		StartupAttempts.loadFromFile("attempts.xml");
+		attempts ++;
+		StartupAttempts.saveToFile("attempts.xml");
+
+		if (attempts < 10){
+			ofLogError("kinect") << "kinect did not start in attempt:" << attempts;
+			ofLogError("kinect") << "restarting OF.";
+			// restart app
+			restarter.initRestart(10);
+		}else{
+			ofLogError("kinect") << "tried to start kinect 10 times without success.";
+			StartupAttempts.add(attempts.set("att",	0, 0, 255 ));
+			attempts = 0;
+			StartupAttempts.saveToFile("attempts.xml");
+			ofLogError("kinect") << "closing OF.";
+			ofExit();
+		}
+	}else{
+		StartupAttempts.add(attempts.set("att",	0, 0, 255 ));
+		attempts = 0;
+		StartupAttempts.saveToFile("attempts.xml");
+	}
 
 	//////////////////////////////////////////////
 	// interface
@@ -24,7 +56,7 @@ void kinect::setup(){
 	grayImage.allocate(kinectV2.width, kinectV2.height);
 	grayThreshNear.allocate(kinectV2.width, kinectV2.height);
 	grayThreshFar.allocate(kinectV2.width, kinectV2.height);
-	kinectV2.setCameraTiltAngle(15);
+//	kinectV2.setCameraTiltAngle(15);
 	
 	//////////////////////////////////////////////
 	//	Parameters
@@ -631,6 +663,6 @@ void kinect::enableOSC(bool enable) {
 
 //--------------------------------------------------------------
 void kinect::exit() {
-	kinectV2.setCameraTiltAngle(0); // zero the tilt on exit
+//	kinectV2.setCameraTiltAngle(0); // zero the tilt on exit
 	kinectV2.close();
 }

@@ -19,6 +19,7 @@
 
 // my addons
 #include "ofxStableGate.h"
+#include "ofxRestartOFApp.h"
 
 class kinect {
 public:
@@ -86,6 +87,7 @@ public:
 	ofEvent <string>			trigger;
 
 	//GUI
+	ofxPanel gui;
 	ofParameter<bool>		enableSwitch;
 	ofParameter<float>		nearThreshold,
 							farThreshold,
@@ -101,10 +103,9 @@ public:
 							rotXfactor,
 							rotationLimit;
 	
-	ofxPanel gui;
-	
 	// switch gate
 	ofxStableGate			gate;
+	ofxRestartOFApp			restarter;
 		
 	void					enableOSC(bool enable);
 	
@@ -126,5 +127,10 @@ private:
 	CvBox2D32f				*_osc_blobInfo;									// normalized blobs info
 	vector<ofVec4f>			_osc_blobGeom;									// normalized blobs geometry
 	bool					bOSCenabled;
+	
+	
+	// stratup attempts
+	ofxPanel			StartupAttempts;
+	ofParameter<int>	attempts;
 	
 };
