@@ -53,6 +53,7 @@ void kinect::setup(){
 	//////////////////////////////////////////////
 	//	kinect pixels
 //	colorImg.allocate(kinectV2.width, kinectV2.height);
+//	ofGrayImg.allocate(kinectV2.width, kinectV2.height, OF_IMAGE_GRAYSCALE);
 	grayImage.allocate(kinectV2.width, kinectV2.height);
 	grayThreshNear.allocate(kinectV2.width, kinectV2.height);
 	grayThreshFar.allocate(kinectV2.width, kinectV2.height);
@@ -81,6 +82,11 @@ void kinect::setup(){
 	gui.add(rotZfactor.set(		"rotZ factor",		1.0, 0, 10));
 	gui.add(speedFactor.set(	"speed factor",		1.01, 0, 2 ));
 	gui.add(rotationLimit.set(	"rotation limit",	45,	 0, 180 ));
+	
+	gui.add(cropX.set(	"crop X",	45,	 0, WBig ));
+	gui.add(cropY.set(	"crop Y",	45,	 0, HBig ));
+	gui.add(cropW.set(	"crop W",	180,	 0, WBig ));
+	gui.add(cropH.set(	"crop H",	120,	 0, HBig ));
 	
 	gui.loadFromFile("settings.xml");
 	
@@ -136,10 +142,22 @@ void kinect::setup(){
 	//////////////////////////////////////////////
 	// switch gate
 	gate.setup(runningBlobsF);
-	gate.setPosition(border, 700);
+	gate.setPosition(border, 800);
 	gate.useDelay(gateOpenDelay, gateCloseDelay);
 	gate.setSize(W+w, 20);
 	
+}
+
+//--------------------------------------------------------------
+void kinect::resizeImages(){
+	
+//	colorImg.resize				(cropW, cropH);
+	grayImage.resize			(cropW, cropH);
+	grayThreshNear.resize		(cropW, cropH);
+	grayThreshFar.resize		(cropW, cropH);
+	
+	lcW=cropW;
+	lcH=cropH;
 }
 
 //--------------------------------------------------------------
@@ -156,12 +174,26 @@ void kinect::update(){
 
 	// kinect 2 is too slow.. we need to process every frame
 	if (true){ //bNewFrame
-
+		
 		//////////////////////////////////////////////
-		// Kinect
-		// load grayscale depth image from the kinect source
-		grayImage.setFromPixels(kinectV2.getDepthPixels());
-
+		// Grab Camera
+//		grayImage.setFromPixels(kinectV2.getDepthPixels());
+//		grayImage.setFromPixels(videoCam.getDepthPixels(), videoCam.width, videoCam.height);
+		ofGrayImg.setFromPixels(kinectV2.getDepthPixels());
+		
+		//////////////////////////////////////////////
+		// Crop
+		if (lcW!=cropW || lcH!=cropH){
+			resizeImages();
+		}
+		cropped.cropFrom(ofGrayImg, cropX, cropY, cropW ,cropH);
+		
+		//////////////////////////////////////////////
+		// to CV grayscale
+//		colorImg.setFromPixels(ofGrayImg);
+//		grayImage.setFromColorImage(colorImg);
+		grayImage.setFromPixels(cropped);
+		
 		// we do two thresholds - one for the far plane and one for the near plane
 		// we then do a cvAnd to get the pixels which are a union of the two thresholds
 			grayThreshNear = grayImage;
@@ -217,17 +249,22 @@ void kinect::draw(){
 	if (bDraw) {
 		//////////////////////////////////////////////
 		// Kinect
-		
-	//	kinect.draw(420, 10, 400, 300);		// draw from the live kinect
-		
-		kinectV2.drawDepth	(border+W+1, border, w, h);			// Top right
-		grayImage.draw		(border+W+1, border+h+1, w, h);		// Bottom Right
-		contourFinder.draw	(border+W+1, border+h+1, w, h);		// Bottom Right
+//		kinectV2.drawDepth		(border, border, WBig/2, HBig/2);		// draw from the live kinect		
+		ofGrayImg.draw		(border, border, WBig/2, HBig/2);		// Main img
+		grayImage.draw		(border+W+1, border, w, h);		// Top right
+		contourFinder.draw	(border+W+1, border, w, h);		// Bottom Right
 		
 		// blob detection + contours
 		if(sendingSocketReady){
-			drawContourAnalysis( border, border, W, H);			// Main image
+			drawContourAnalysis( border+W+1, border+h+1, w, h);			// Main image
 		}
+		
+		//crop
+		ofPushStyle();
+		ofNoFill();
+		ofSetColor(ofColor::yellow);
+		ofRect(border+cropX/2, border+cropY/2, cropW/2, cropH/2);
+		ofPopStyle();
 		
 		// GUI
 		gui.draw();

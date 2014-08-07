@@ -22,4 +22,8 @@
 	<rotation_limit>43.5</rotation_limit>
 <minDistance>300</minDistance>
 	<maxDistance>1325</maxDistance>
+<crop_X>164</crop_X>
+	<crop_Y>148</crop_Y>
+	<crop_W>180</crop_W>
+	<crop_H>120</crop_H>
 </panel>

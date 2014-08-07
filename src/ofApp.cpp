@@ -27,19 +27,7 @@ void ofApp::setup(){
 	ofAddListener(timer.TIMER_REACHED, this, &ofApp::getNotification);
 
 	
-	// a scheduled event to close everything (not used)
-//	event = ofxTimeEvent::getInstance();
-//	event->registerSec(1, 30);
-	/*
-	// event every even minute
-	for (int i=0;i<30;i++){
-		event->registerMin(i+1, i*2);
-	}*/
-//	event->registerHourMin(1, 17, 8);
-//	ofAddListener( event->eventData, this, &ofApp::listenEvent);
-	
-	
-	ofSetLogLevel(OF_LOG_NOTICE);
+	ofSetLogLevel(OF_LOG_ERROR);
 }
 
 //--------------------------------------------------------------

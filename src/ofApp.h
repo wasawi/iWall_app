@@ -35,6 +35,21 @@ public:
 	ofxShutdown		shutdown;
 	
 	
+	
+	
+	//__________________________________________
+	// a scheduled event to close everything (not used)
+	//	event = ofxTimeEvent::getInstance();
+	//	event->registerSec(1, 30);
+	/*
+	 // event every even minute
+	 for (int i=0;i<30;i++){
+	 event->registerMin(i+1, i*2);
+	 }*/
+	//	event->registerHourMin(1, 17, 8);
+	//	ofAddListener( event->eventData, this, &ofApp::listenEvent);
+
+	
 	void ofKillApp(string appname){
 		
 		/*

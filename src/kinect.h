@@ -46,12 +46,22 @@ public:
 //	int							threshold;
 	
 	// kinect
-	ofVec3f						*warpMult;
-	ofVec3f						*destPoints;
+	ofImage						ofGrayImg;
+	ofImage						cropped;
 	ofxCvGrayscaleImage			grayImage;
 	ofxCvColorImage				colorImg;
 	ofxCvGrayscaleImage			grayThreshNear; // the near thresholded image
 	ofxCvGrayscaleImage			grayThreshFar; // the far thresholded image
+	ofVec3f						*warpMult;
+	ofVec3f						*destPoints;
+
+	// Crop
+	ofParameter<int>		cropX,
+	cropY,
+	cropW,
+	cropH;
+	int lcX,lcY,lcW,lcH;
+	void resizeImages();
 	
 	// contour finder
 	ofxCvContourFinder			contourFinder;
