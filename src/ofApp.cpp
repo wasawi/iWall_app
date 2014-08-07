@@ -13,21 +13,23 @@ void ofApp::setup(){
 	knect.enableOSC(true);
 	
 	//events
+	// manual switch
 	ofAddListener(knect.trigger,					//the ofEvent that we want to listen to.
 				  this,								//pointer to the class that is going to be listening.
 				  &ofApp::manualSwitcher);			//pointer to the method that's going to be called when a new event is broadcasted (callback method).
 
+	// gate switch
 	ofAddListener(knect.gate.gateEvent,				//the ofEvent that we want to listen to.
 				  this,								//pointer to the class that is going to be listening.
 				  &ofApp::switcher);				//pointer to the method that's going to be called when a new event is broadcasted (callback method).
 
 	// a timer to switch to VLC
-	timer.setup(20000, false);
-	timer.startTimer();
-	ofAddListener(timer.TIMER_REACHED, this, &ofApp::getNotification);
+//	timer.setup(20000, false);
+//	timer.startTimer();
+//	ofAddListener(timer.TIMER_REACHED, this, &ofApp::getNotification);
 
 	
-	ofSetLogLevel(OF_LOG_ERROR);
+	ofSetLogLevel(OF_LOG_NOTICE);
 }
 
 //--------------------------------------------------------------
@@ -41,13 +43,13 @@ void ofApp::switcher(float &e){
 	
 	if (knect.enableSwitch){
 		if (e>0){
-			cout << "GO TO BLENDER"<< endl;
+			ofLogNotice("switcher") << "GO TO BLENDER"<< endl;
 			apps.switchToBlender();
 			knect.enableOSC(true);
 		}
 		
 		else{
-			cout << "GO TO VLC"<< endl;
+			ofLogNotice("switcher") << "GO TO VLC"<< endl;
 			apps.switchToVLC();
 			knect.enableOSC(false);
 		}

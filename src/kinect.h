@@ -59,7 +59,9 @@ public:
 	ofParameter<int>		cropX,
 	cropY,
 	cropW,
-	cropH;
+	cropH,
+	minBlobSize,
+	maxBlobSize;
 	int lcX,lcY,lcW,lcH;
 	void resizeImages();
 	
@@ -72,8 +74,8 @@ public:
 	vector<ofVec2f>				*contourHull;
 	CvBox2D32f					*box;
 	float						*blobAngle;
-	float						smoothPct;
-	float						tolerance;
+//	float						smoothPct;
+//	float						tolerance;
 	int							runningBlobs;
 	float						runningBlobsF;
 	vector<ofVec4f>				geomLines;										// geometry lines find into countour
@@ -101,6 +103,8 @@ public:
 	ofParameter<bool>		enableSwitch;
 	ofParameter<float>		nearThreshold,
 							farThreshold,
+							smoothPct,
+							tolerance,
 							smoothFactor,
 							fadeFactor,
 							handsDistThresh,

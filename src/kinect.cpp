@@ -62,7 +62,7 @@ void kinect::setup(){
 	//////////////////////////////////////////////
 	//	Parameters
 	gui.setup("panel"); // most of the time you don't need a name but don't forget to call setup
-	gui.setPosition(border, 380);
+	gui.setPosition(border, 340);
 	gui.setSize(W+w, 20);
 	gui.add(enableSwitch.set(	"enableSwitch",	true ));
 
@@ -71,12 +71,22 @@ void kinect::setup(){
 
 	gui.add(nearThreshold.set(	"nearThreshold",	250, 0, 255 ));
 	gui.add(farThreshold.set(	"farThreshold",		200, 0, 255 ));
+
+	gui.add(minBlobSize.set(	"minBlobSize",		10,	 0, 5000));
+	gui.add(maxBlobSize.set(	"maxBlobSize",		2000,0, 50000));
+	
+	gui.add(smoothPct.set(		"smoothPct",		0.13,0, 1 ));
+	gui.add(tolerance.set(		"tolerance",		40,	 0, 100 ));
+	
 	gui.add(smoothFactor.set(	"smoothFactor",		0.99, 0, 1 ));
 	gui.add(fadeFactor.set(		"fadeFactor",		0.98, 0.8, 1 ));
+	
 	gui.add(handsDistThresh.set("handsDistThresh",	0.5,  0, 1 ));
 	gui.add(speed.set(			"current speed",	0.01, 0, 1 ));
+	
 	gui.add(gateOpenDelay.set(	"gateOpenDelay",	2000, 0, 10000));
 	gui.add(gateCloseDelay.set( "gateCloseDelay",	2000, 0, 10000));
+	
 	gui.add(rotXfactor.set(		"rotX factor",		0.1, 0, 3));
 	gui.add(rotYfactor.set(		"rotY factor",		1.0, 0, 10));
 	gui.add(rotZfactor.set(		"rotZ factor",		1.0, 0, 10));
@@ -126,8 +136,8 @@ void kinect::setup(){
 	blobAngle = new float[MAX_NUM_CONTOURS_TO_FIND];
 	_s_blobInfo = new CvBox2D32f[MAX_NUM_CONTOURS_TO_FIND];
 	_osc_blobInfo = new CvBox2D32f[MAX_NUM_CONTOURS_TO_FIND];
-	smoothPct = 0.13f;
-	tolerance = 20.0f;
+//	smoothPct = 0.13f;
+//	tolerance = 40.0f;
 	runningBlobsF=0;
 	
 	cfDetail					= 1;// contour detection detail selector
@@ -207,7 +217,7 @@ void kinect::update(){
 		
 		// find contours which are between the size of 20 pixels and 1/3 the w*h pixels.
 		// also, find holes is set to true so we will get interior contours as well....
-		runningBlobs = contourFinder.findContours(grayImage, 10, (kinectV2.width*kinectV2.height)/2, MAX_NUM_CONTOURS_TO_FIND, false);
+		runningBlobs = contourFinder.findContours(grayImage, minBlobSize, maxBlobSize, MAX_NUM_CONTOURS_TO_FIND, false);
 		runningBlobsF = runningBlobs;
 
 		if(runningBlobs > 0 && bOSCenabled){
@@ -277,8 +287,8 @@ void kinect::draw(){
 	ofSetColor(255, 255, 255);
 	stringstream reportStream;
 	reportStream << "press h to hide/show image previews" << endl
-	<< "press k to stop/start Kinect, current status: " << kinectV2.isConnected() << endl
-	<< "num blobs found " << contourFinder.nBlobs << endl
+//	<< "press k to stop/start Kinect, current status: " << kinectV2.isConnected() << endl
+//	<< "num blobs found " << contourFinder.nBlobs << endl
 	<< "press ESC to close" << endl
 	<< "fps: " << ofGetFrameRate() << endl;
 	ofDrawBitmapString(reportStream.str(), border, border+H+20);
