@@ -24,9 +24,9 @@ void ofApp::setup(){
 				  &ofApp::switcher);				//pointer to the method that's going to be called when a new event is broadcasted (callback method).
 
 	// a timer to switch to VLC
-//	timer.setup(20000, false);
-//	timer.startTimer();
-//	ofAddListener(timer.TIMER_REACHED, this, &ofApp::getNotification);
+	timer.setup(20000, false);
+	timer.startTimer();
+	ofAddListener(timer.TIMER_REACHED, this, &ofApp::getNotification);
 
 	
 	ofSetLogLevel(OF_LOG_NOTICE);

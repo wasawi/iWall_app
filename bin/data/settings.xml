@@ -1,5 +1,5 @@
 <panel>
-	<nearThreshold>177.969</nearThreshold>
+	<nearThreshold>206.125</nearThreshold>
 	<farThreshold>128.031</farThreshold>
 	<smoothFactor>0.977083</smoothFactor>
 	<distanceLimit>0.916667</distanceLimit>
@@ -10,7 +10,7 @@
 <handsDistThresh>0.21875</handsDistThresh>
 <fadeFactor>0.943333</fadeFactor>
 	<speed_Increment>1.05</speed_Increment>
-	<current_speed>0.01</current_speed>
+	<current_speed>0.0127042</current_speed>
 <rotYfactor>0.0416667</rotYfactor>
 	<rotZfactor>4.9375</rotZfactor>
 <enableSwitch>1</enableSwitch>
@@ -22,9 +22,9 @@
 	<rotation_limit>43.5</rotation_limit>
 <minDistance>2775</minDistance>
 	<maxDistance>8975</maxDistance>
-<crop_X>148</crop_X>
+<crop_X>166</crop_X>
 	<crop_Y>128</crop_Y>
-	<crop_W>232</crop_W>
+	<crop_W>198</crop_W>
 	<crop_H>174</crop_H>
 <minBlobSize>197</minBlobSize>
 	<maxBlobSize>20000</maxBlobSize>
