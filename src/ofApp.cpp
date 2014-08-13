@@ -29,6 +29,12 @@ void ofApp::setup(){
 	ofAddListener(timer.TIMER_REACHED, this, &ofApp::getNotification);
 
 	
+	// a scheduled event to close the app
+	event = ofxTimeEvent::getInstance();
+	event->registerHour(1, 22);
+	ofAddListener( event->eventData, this, &ofApp::listenEvent);
+	
+	
 	ofSetLogLevel(OF_LOG_NOTICE);
 }
 
@@ -126,13 +132,13 @@ void ofApp::keyPressed  (int key){
 //--------------------------------------------------------------
 void ofApp::listenEvent( ofxTimeEventData& data )
 {
-    ofLogNotice("listenEvent") << "TIME EVENT DISPATCHED" <<
+    ofLogNotice("TimeEvent") << "TIME EVENT DISPATCHED" <<
 	" hour:" << data.hour<<
 	" minute:" << data.minutes<<
-	" second:" << data.second<<	endl;
+	" second:" << data.second;
 
 	// attention. shutDown does not work.
-	// we will only close the app and do the shutdown in system preferences.
+	// we will only close the app
 	
 	/*
 	// wait 3 seconds before sending the shutdown command
@@ -146,8 +152,9 @@ void ofApp::listenEvent( ofxTimeEventData& data )
 	// execute
 	shutdown.shutdownExecute();
 	 */
-	
-	ofKillApp("iWall");
+
+	ofExit();
+//	ofKillApp("iWall");
 }
 
 
